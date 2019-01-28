@@ -1,5 +1,5 @@
 
-nc = require('netcat');
-Discord = require('discord.js');
+const nc = require('netcat');
+const Discord = require('discord.js');
 
-client = new Discord.client();
+const client = new Discord.Client();
