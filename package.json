@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/SpencerJ21/scraperBrokerServer/issues"
   },
-  "homepage": "https://github.com/SpencerJ21/scraperBrokerServer#readme"
+  "homepage": "https://github.com/SpencerJ21/scraperBrokerServer#readme",
+  "dependencies": {
+    "netcat": "^1.4.0"
+  }
 }
