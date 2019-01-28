@@ -1,0 +1,19 @@
+{
+  "name": "scraperbrokerserver",
+  "version": "1.0.0",
+  "description": "SpencerJ21, WalterJ21; 2019 Cybersecurity project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SpencerJ21/scraperBrokerServer.git"
+  },
+  "author": "SpencerJ21,WalterJ21",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SpencerJ21/scraperBrokerServer/issues"
+  },
+  "homepage": "https://github.com/SpencerJ21/scraperBrokerServer#readme"
+}
