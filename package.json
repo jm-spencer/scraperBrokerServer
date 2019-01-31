@@ -18,6 +18,5 @@
   "homepage": "https://github.com/SpencerJ21/scraperBrokerServer#readme",
   "dependencies": {
     "discord.js": "^11.4.2",
-    "netcat": "^1.4.0"
   }
 }
