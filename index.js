@@ -27,10 +27,11 @@ server.listen(8081, () => {
 
 });
 
-// Attempt to grab the number of connections upon a successful connection; does not currently work
+// Grab the current number of connections upon every successful connection
 server.on('connection', () => {
 
-    server.getConnections( (n) => {
+    server.getConnections( (err,n) => {
+        if(err) console.error(err);
 
         console.log('there are', +n, 'connections');
     
