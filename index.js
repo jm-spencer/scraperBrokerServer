@@ -1,13 +1,28 @@
 
-const NetcatServer = require('netcat/server');
-const NetcatClient = require('netcat/client');
-const ncs = new NetcatServer();
-const ncc = new NetcatClient();
+const net = require('net');
 
-const Discord = require('discord.js');
+const server = net.createServer( (c) => {
 
-const client = new Discord.Client();
+    // 'connection' listener
+    console.log('client connected');
 
-ncs.port(8081).k().listen().on('data', (socket, chunk) => { // Event based listener; listens on port 8081 and outputs received packets in hex
-    console.log(chunk);
+    c.on('end', () => {
+        console.log('client disconnected');
+    });
+
+    c.write('hello\r\n');
+    c.pipe(c);
+
+});
+
+server.on('error', (err) => {
+
+    throw err;
+
+});
+
+server.listen(8081, () => {
+
+    console.log('server bound');
+
 });
