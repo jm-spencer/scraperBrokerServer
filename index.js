@@ -1,13 +1,18 @@
 
 const net = require('net');
 
-const server = net.createServer( (c, n) => {
-
-    // 'connection' listener
-    console.log('client connected');
+const server = net.createServer( (c, n) => { // Server functionality; pipes connection data to stdout
 
     c.on('end', () => {
-        console.log('client disconnected');
+
+        server.getConnections( (err,n) => { // Log disconnections and active clients
+            
+            if(err) console.error(err);
+    
+            console.log('client disconnected (',n,'active )');
+        
+        });
+
     });
 
     c.write('hello\r\n');
@@ -15,25 +20,25 @@ const server = net.createServer( (c, n) => {
 
 });
 
-server.on('error', (err) => {
+server.on('error', (err) => { // Error handling
 
     throw err;
 
 });
 
-server.listen(8081, () => {
+server.listen(8081, () => { // Server listens on port 8081
 
     console.log('server bound');
 
 });
 
-// Grab the current number of connections upon every successful connection
-server.on('connection', () => {
+server.on('connection', () => { // Log connections and active clients
 
     server.getConnections( (err,n) => {
+
         if(err) console.error(err);
 
-        console.log('there are', +n, 'connections');
+        console.log('client connected (',n,'active )');
     
     });
     
