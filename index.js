@@ -1,7 +1,7 @@
 
 const net = require('net');
 
-const server = net.createServer( (c) => {
+const server = net.createServer( (c, n) => {
 
     // 'connection' listener
     console.log('client connected');
@@ -11,7 +11,7 @@ const server = net.createServer( (c) => {
     });
 
     c.write('hello\r\n');
-    c.pipe(c);
+    c.pipe(process.stdout);
 
 });
 
@@ -24,5 +24,17 @@ server.on('error', (err) => {
 server.listen(8081, () => {
 
     console.log('server bound');
+
+});
+
+// Attempt to grab the number of connections upon a successful connection; does not currently work
+server.on('connection', () => {
+
+    server.getConnections( (n) => {
+
+        console.log('there are', +n, 'connections');
+    
+    });
+    
 
 });
