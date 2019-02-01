@@ -9,7 +9,6 @@ const server = net.createServer( socket => { // Server functionality; pipes conn
     
     //send a message to the client and pipe client data to the terminal
     socket.write('hello\r\n');
-    socket.pipe(process.stdout);
 
     //assign event callbacks
 
