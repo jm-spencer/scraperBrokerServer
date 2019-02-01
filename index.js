@@ -2,7 +2,7 @@
 const net = require('net');
 
 //callback here is called on event "connection," and returns a socket object to the connection
-const server = net.createServer( socket => { // Server functionality; pipes connection data to stdout
+const server = net.createServer( (socket) => { // Server functionality; pipes connection data to stdout
 
     //notify presence of new connection
     console.log('Client at ', socket.address().address);
@@ -12,8 +12,8 @@ const server = net.createServer( socket => { // Server functionality; pipes conn
 
     //assign event callbacks
 
-    socket.setEncoding('utf8');
-    socket.on('data', res => {
+    socket.setEncoding('ascii');
+    socket.on('data', (res) => {
         console.log(res);
     });
 
