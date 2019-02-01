@@ -8,6 +8,8 @@ const pingPrefix = 'PNG';
 const disconnectPrefix = 'END';
 const shutdownPrefix = 'UWU';
 
+var socketRegistry = [];
+
 //callback here is called on event "connection," and returns a socket object to the connection
 const server = net.createServer( (socket) => { // Server functionality; pipes connection data to stdout
 
@@ -17,8 +19,11 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
     //send a message to the client and pipe client data to the terminal
     socket.write('hello\r\n');
 
-    //assign event callbacks
+    //add to registry
+    socketRegistry.push(socket);
 
+
+    //assign event callbacks
     socket.setEncoding('ascii');
     socket.on('data', (res) => {
 
@@ -33,6 +38,13 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
             case pingPrefix:
                 // Distribute ping-time data
                 console.log('Ping-Time Data received - Distributing...');
+
+                socketRegistry.forEach( (connectionSocket) => {
+                    if(!connectionSocket.destroyed){
+                        connectionSocket.write('[' + Date() + '] Ping!');
+                    }
+                });
+
                 break;
 
             case disconnectPrefix:
