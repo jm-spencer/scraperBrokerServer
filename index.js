@@ -1,5 +1,12 @@
 
 const net = require('net');
+const fs = require('fs');
+
+// Define switch cases
+var MSG = 'MSG';
+var PNG = 'PNG';
+var END = 'END';
+var UWU = 'UWU';
 
 //callback here is called on event "connection," and returns a socket object to the connection
 const server = net.createServer( (socket) => { // Server functionality; pipes connection data to stdout
@@ -14,7 +21,37 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
 
     socket.setEncoding('ascii');
     socket.on('data', (res) => {
-        console.log(res);
+
+        var message = res.slice(0, 3);
+
+        switch(message) {
+            case MSG:
+                // Post message to Discord
+                console.log('Snow day! Posting message to Discord');
+                break;
+
+            case PNG:
+                // Distribute ping-time data
+                console.log('Ping-Time Data received - Distributing...');
+                break;
+
+            case END:
+                // Stop communicating with bots
+                console.log('Emergency communications shutoff - Disconnecting from bots...');
+                break;
+
+            case UWU:
+                // Shut down the server
+                console.log('Code UWU! Shutting down!');
+                process.exit();
+                break;
+
+            default:
+                // Log queer messages
+                console.log('Queer message - Logging...');
+                fs.appendFileSync('LOG', '[' + Date() + '] ' + res);
+        }
+
     });
 
     socket.on('error', (err) => {
