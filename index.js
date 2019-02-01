@@ -1,46 +1,34 @@
 
 const net = require('net');
 
-const server = net.createServer( (c, n) => { // Server functionality; pipes connection data to stdout
+//callback here is called on event "connection," and returns a socket object to the connection
+const server = net.createServer( socket => { // Server functionality; pipes connection data to stdout
 
-    c.on('end', () => {
-
-        server.getConnections( (err,n) => { // Log disconnections and active clients
-            
-            if(err) console.error(err);
+    //notify presence of new connection
+    console.log('Client at ', socket.address().address);
     
-            console.log('client disconnected (',n,'active )');
-        
+    //send a message to the client and pipe client data to the terminal
+    socket.write('hello\r\n');
+    socket.pipe(process.stdout);
+
+    //assign event callbacks
+    socket.on('error', (err) => {
+        console.error(err);
+    });
+
+    socket.on('end', () => {
+        server.getConnections( (err,n) => { // Log disconnections and active clients
+            if(err) console.error(err);
+            console.log('Client disconnected (',n,'active )');
         });
 
     });
-
-    c.write('hello\r\n');
-    c.pipe(process.stdout);
-
 });
 
 server.on('error', (err) => { // Error handling
-
-    throw err;
-
+    console.error(err);
 });
 
 server.listen(8081, () => { // Server listens on port 8081
-
-    console.log('server bound');
-
-});
-
-server.on('connection', () => { // Log connections and active clients
-
-    server.getConnections( (err,n) => {
-
-        if(err) console.error(err);
-
-        console.log('client connected (',n,'active )');
-    
-    });
-    
-
+    console.log('Server bound');
 });
