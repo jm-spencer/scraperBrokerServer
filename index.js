@@ -71,7 +71,7 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
     socket.on('end', () => {
         server.getConnections( (err,n) => { // Log disconnections and active clients
             if(err) console.error(err);
-            console.log('[' + Date() + '] Client at ' + socket.remoteAddress + 'disconnected ('+n+'active )');
+            console.log('[' + Date() + '] Client at ' + socket.remoteAddress + ' disconnected ( '+ n +' active )');
         });
 
     });
