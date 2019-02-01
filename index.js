@@ -12,6 +12,12 @@ const server = net.createServer( socket => { // Server functionality; pipes conn
     socket.pipe(process.stdout);
 
     //assign event callbacks
+
+    socket.setEncoding('utf8');
+    socket.on('data', res => {
+        console.log(res);
+    });
+
     socket.on('error', (err) => {
         console.error(err);
     });
