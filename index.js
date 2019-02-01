@@ -14,7 +14,7 @@ var socketRegistry = [];
 const server = net.createServer( (socket) => { // Server functionality; pipes connection data to stdout
 
     //notify presence of new connection
-    console.log('Client at ', socket.address().address);
+    console.log('Client at ', socket.remoteAddress);
     
     //send a message to the client and pipe client data to the terminal
     socket.write('hello\r\n');
