@@ -14,19 +14,17 @@ async function scrape() {
 
     switch(target) {
         case 0:
-            return rp('https://www.calverthall.com/page').catch((e) => console.error('\x1b[41m%s\x1b[0m',e));
-            break;
+            return rp('https://www.calverthall.com/page').catch((e) => console.error("\x1b[41m%s\x1b[0m",e));
 
         case 1:
-            return fs.readFileSync('./Calvert Hall - Normal.html');
-            break;
+            return fs.readFile('./Calvert Hall - Normal.html',(e) => console.error("\x1b[41m%s\x1b[0m",e));
 
         case 2:
-            return fs.readFileSync('./Calvert Hall - Snow Day.html');
-            break;
+            return fs.readFile('./Calvert Hall - Snow Day.html',(e) => console.error("\x1b[41m%s\x1b[0m",e));
 
         default:
             console.error("\x1b[41m%s\x1b[0m", `invalid target: ${target}`);
+
     }
 }
 
@@ -47,6 +45,9 @@ const client = net.createConnection({port: 8081}, {host: 'localhost'}, () => { /
 
     console.log('[CONNECTING]');
     client.write('PNG'); // Fake ping report for testing purposes
+
+    client.setEncoding('ascii');
+
     owo(); // Scrape the CHC site and parse the banner message, if any
 
 });
@@ -54,18 +55,16 @@ const client = net.createConnection({port: 8081}, {host: 'localhost'}, () => { /
 // Data event handler
 client.on('data', (res) => {
 
-    client.setEncoding('ascii');
-
     let message = res.slice(0, 3);
     switch(message) {
         case disconnectPrefix:
-            console.log(res.toString());
+            console.log(res);
             console.log('[EMERGENCY DISCONNECT]');
             client.end()
             break;
 
         default:
-            console.log(res.toString());
+            console.log(res);
     }
 
 });
