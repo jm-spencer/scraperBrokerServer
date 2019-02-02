@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 
 var lastNotification = '';
-target = 2;
+target = 0;
 
 // Define switch cases
 const disconnectPrefix = 'END';
@@ -17,10 +17,10 @@ async function scrape() {
             return rp('https://www.calverthall.com/page').catch((e) => console.error('\x1b[41m%s\x1b[0m',e));
 
         case 1:
-            return fs.readFile('./Calvert Hall - Normal.html',(e) => console.error('\x1b[41m%s\x1b[0m',e));
+            return fs.readFileSync('./Calvert Hall - Normal.html');
 
         case 2:
-            return fs.readFile('./Calvert Hall - Snow Day.html',(e) => console.error('\x1b[41m%s\x1b[0m',e));
+            return fs.readFileSync('./Calvert Hall - Snow Day.html');
 
         default:
             console.error('\x1b[41m%s\x1b[0m', `[${Date()}] INVALID TARGET: ${target}`);
