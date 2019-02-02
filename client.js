@@ -1,8 +1,6 @@
 const net = require('net');
 
 // Define switch cases
-const messagePrefix = 'MSG';
-const pingPrefix = 'PNG';
 const disconnectPrefix = 'END';
 
 // Establish a connection to the server

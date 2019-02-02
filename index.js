@@ -43,7 +43,7 @@ const server = net.createServer( (socket) => {
                 socketRegistry.forEach( (connectionSocket) => {
 
                     if(!connectionSocket.destroyed){
-                        connectionSocket.write('[' + Date() + '] Ping!');
+                        connectionSocket.write('[' + Date() + '] Ping!\r\n');
 
                     }
                 });
@@ -56,11 +56,10 @@ const server = net.createServer( (socket) => {
                 socketRegistry.forEach( (connectionSocket) => {
 
                     if(!connectionSocket.destroyed){
-                        connectionSocket.write('END @ [' + Date() + ']');
+                        connectionSocket.write('END @ [' + Date() + ']\r\n');
 
                     }
                 });
-
                 break;
 
             case shutdownPrefix:
