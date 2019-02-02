@@ -10,26 +10,27 @@ const shutdownPrefix = 'UWU';
 
 var socketRegistry = [];
 
-//callback here is called on event "connection," and returns a socket object to the connection
-const server = net.createServer( (socket) => { // Server functionality; pipes connection data to stdout
+// Callback here is called on event "connection," and returns a socket object to the connection
+const server = net.createServer( (socket) => {
 
-    //notify presence of new connection
+    // Notify presence of new connection
     console.log('Client at ', socket.remoteAddress);
     
-    //send a message to the client and pipe client data to the terminal
-    socket.write('hello\r\n');
+    // Send a message to the client and pipe client data to the terminal
+    socket.write('CONNECTION ESTABLISHED\r\n');
 
-    //add to registry
+    // Add to registry
     socketRegistry.push(socket);
 
 
-    //assign event callbacks
+    // Assign event callbacks
     socket.setEncoding('ascii');
     socket.on('data', (res) => {
 
         let message = res.slice(0, 3);
 
         switch(message) {
+
             case messagePrefix:
                 // Post message to Discord
                 console.log('[' + Date() + '] Snow day! Posting message to Discord');
@@ -40,11 +41,12 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
                 console.log('[' + Date() + '] Ping-Time Data received - Distributing...');
 
                 socketRegistry.forEach( (connectionSocket) => {
+
                     if(!connectionSocket.destroyed){
                         connectionSocket.write('[' + Date() + '] Ping!');
+
                     }
                 });
-
                 break;
 
             case disconnectPrefix:
@@ -62,6 +64,7 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
                 // Log queer messages
                 console.log('[' + Date() + '] Queer message - Logging...');
                 fs.appendFile('LOG', '[' + Date() + '] ' + res, console.error);
+
         }
 
     });
@@ -69,9 +72,12 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
     socket.on('error', console.error);
 
     socket.on('end', () => {
+
         server.getConnections( (err,n) => { // Log disconnections and active clients
+
             if(err) console.error(err);
             console.log('[' + Date() + '] Client at ' + socket.remoteAddress + ' disconnected ( '+ n +' active )');
+
         });
 
     });
@@ -80,5 +86,7 @@ const server = net.createServer( (socket) => { // Server functionality; pipes co
 server.on('error', console.error);
 
 server.listen(8081, () => { // Server listens on port 8081
+
     console.log('[' + Date() + '] Server bound');
+
 });
