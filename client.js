@@ -14,22 +14,22 @@ async function scrape() {
 
     switch(target) {
         case 0:
-            return rp('https://www.calverthall.com/page').catch((e) => console.error("\x1b[41m%s\x1b[0m",e));
+            return rp('https://www.calverthall.com/page').catch((e) => console.error('\x1b[41m%s\x1b[0m',e));
 
         case 1:
-            return fs.readFile('./Calvert Hall - Normal.html',(e) => console.error("\x1b[41m%s\x1b[0m",e));
+            return fs.readFile('./Calvert Hall - Normal.html',(e) => console.error('\x1b[41m%s\x1b[0m',e));
 
         case 2:
-            return fs.readFile('./Calvert Hall - Snow Day.html',(e) => console.error("\x1b[41m%s\x1b[0m",e));
+            return fs.readFile('./Calvert Hall - Snow Day.html',(e) => console.error('\x1b[41m%s\x1b[0m',e));
 
         default:
-            console.error("\x1b[41m%s\x1b[0m", `invalid target: ${target}`);
+            console.error('\x1b[41m%s\x1b[0m', `[${Date()}] INVALID TARGET: ${target}`);
 
     }
 }
 
 // Parse message - Adapted from original Snow Day Bot
-async function owo() {
+async function parse() {
 
     let $ = cheerio.load(await scrape());
     let notification = $('.message').first().text().trim();
@@ -43,12 +43,12 @@ async function owo() {
 // Establish a connection to the server
 const client = net.createConnection({port: 8081}, {host: 'localhost'}, () => { // Change host variable according to server location
 
-    console.log('[CONNECTING]');
+    console.log(`[${Date()}] CONNECTING`);
     client.write('PNG'); // Fake ping report for testing purposes
 
     client.setEncoding('ascii');
 
-    owo(); // Scrape the CHC site and parse the banner message, if any
+    parse(); // Scrape the CHC site and parse the banner message, if any
 
 });
 
@@ -59,7 +59,7 @@ client.on('data', (res) => {
     switch(message) {
         case disconnectPrefix:
             console.log(res);
-            console.log('[EMERGENCY DISCONNECT]');
+            console.log(`[${Date()}] EMERGENCY DISCONNECT`);
             client.end()
             break;
 
@@ -72,6 +72,6 @@ client.on('data', (res) => {
 // End event handler
 client.on('end', () => {
 
-    console.log('[DISCONNECTED FROM SERVER]');
+    console.log(`[${Date()}] DISCONNECTED FROM SERVER`);
 
 });
