@@ -17,7 +17,7 @@ const server = net.createServer( (socket) => {
     console.log('Client at ', socket.remoteAddress);
     
     // Send a message to the client and pipe client data to the terminal
-    socket.write('CONNECTION ESTABLISHED\r\n');
+    socket.write('[CONNECTION ESTABLISHED]\r\n');
 
     // Add to registry
     socketRegistry.push(socket);
@@ -52,6 +52,15 @@ const server = net.createServer( (socket) => {
             case disconnectPrefix:
                 // Stop communicating with bots
                 console.log('[' + Date() + '] Emergency communications shutoff - Disconnecting from bots...');
+                
+                socketRegistry.forEach( (connectionSocket) => {
+
+                    if(!connectionSocket.destroyed){
+                        connectionSocket.write('END @ [' + Date() + ']');
+
+                    }
+                });
+
                 break;
 
             case shutdownPrefix:
