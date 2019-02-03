@@ -1,3 +1,4 @@
+
 const net = require('net');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
@@ -66,7 +67,7 @@ client.on('data', (res) => {
             break;
 
         case messagePrefix:
-            let snow = res.substr(4, 1000);
+            let snow = res.substr(4, 2000).trim();
             console.log(`${Date()} Snow day! ${snow}`);
             notification = snow;
             break;

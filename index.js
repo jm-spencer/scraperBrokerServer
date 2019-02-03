@@ -17,7 +17,7 @@ const server = net.createServer( (socket) => {
     console.log(`Client at , ${socket.remoteAddress}`);
     
     // Send a message to the client and pipe client data to the terminal
-    socket.write(`[CONNECTION ESTABLISHED]\r\n`);
+    socket.write(`[CONNECTION ESTABLISHED]\n`);
 
     // Add to registry
     socketRegistry.push(socket);
@@ -33,7 +33,7 @@ const server = net.createServer( (socket) => {
 
             case messagePrefix:
                 // Post message to Discord
-                let snow = res.substr(4, 1000);
+                let snow = res.substr(4, 2000).trim();
                 //snow.replace(`MSG `, ` `);
                 console.log(`[${Date()}] Snow day! ${snow}`);
 
@@ -41,7 +41,7 @@ const server = net.createServer( (socket) => {
 
                     if(!connectionSocket.destroyed){
                         connectionSocket.write(`MSG ${snow}`);
-                        connectionSocket.write(`\n\r`);
+                        connectionSocket.write(`\n`);
 
                     }
                 });
@@ -55,7 +55,7 @@ const server = net.createServer( (socket) => {
                 socketRegistry.forEach( (connectionSocket) => {
 
                     if(!connectionSocket.destroyed){
-                        connectionSocket.write(`[${Date()}] Ping!\r\n`);
+                        connectionSocket.write(`[${Date()}] Ping!\n`);
 
                     }
                 });
@@ -68,7 +68,7 @@ const server = net.createServer( (socket) => {
                 socketRegistry.forEach( (connectionSocket) => {
 
                     if(!connectionSocket.destroyed){
-                        connectionSocket.write(`END @ [${Date()}]\r\n`);
+                        connectionSocket.write(`END @ [${Date()}]\n`);
 
                     }
                 });
