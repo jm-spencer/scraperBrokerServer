@@ -24,7 +24,7 @@ const server = net.createServer( (socket) => {
 
 
     // Assign event callbacks
-    socket.setEncoding('ascii');
+    socket.setEncoding('utf8');
     socket.on('data', (res) => {
 
         let message = res.slice(0, 3);
@@ -33,7 +33,19 @@ const server = net.createServer( (socket) => {
 
             case messagePrefix:
                 // Post message to Discord
-                console.log(`[${Date()}] Snow day! Posting message to Discord`);
+                let snow = res.substr(4, 1000);
+                //snow.replace(`MSG `, ` `);
+                console.log(`[${Date()}] Snow day! ${snow}`);
+
+                socketRegistry.forEach( (connectionSocket) => {
+
+                    if(!connectionSocket.destroyed){
+                        connectionSocket.write(`MSG ${snow}`);
+                        connectionSocket.write(`\n\r`);
+
+                    }
+                });
+
                 break;
 
             case pingPrefix:

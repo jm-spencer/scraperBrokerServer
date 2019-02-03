@@ -4,10 +4,11 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 
 var lastNotification = '';
-target = 0;
+target = 2;
 
 // Define switch cases
 const disconnectPrefix = 'END';
+const messagePrefix = `MSG`;
 
 // Scraping - Adapted from original Snow Day Bot
 async function scrape() {
@@ -32,11 +33,12 @@ async function scrape() {
 async function parse() {
 
     let $ = cheerio.load(await scrape());
-    let notification = $('.message').first().text().trim();
+    var notification = $('.message').first().text().trim();
     if(notification == lastNotification) return;
     lastNotification = notification;
     if(!notification) return;
     console.log(notification); // Log for testing purposes
+    client.write(`MSG ${notification}`);
 
 }
 
@@ -46,9 +48,9 @@ const client = net.createConnection({port: 8081}, {host: 'localhost'}, () => { /
     console.log(`[${Date()}] CONNECTING`);
     client.write('PNG'); // Fake ping report for testing purposes
 
-    client.setEncoding('ascii');
+    client.setEncoding('utf8');
 
-    parse(); // Scrape the CHC site and parse the banner message, if any
+    parse();
 
 });
 
@@ -61,6 +63,12 @@ client.on('data', (res) => {
             console.log(res);
             console.log(`[${Date()}] EMERGENCY DISCONNECT`);
             client.end()
+            break;
+
+        case messagePrefix:
+            let snow = res.substr(4, 1000);
+            console.log(`${Date()} Snow day! ${snow}`);
+            notification = snow;
             break;
 
         default:
