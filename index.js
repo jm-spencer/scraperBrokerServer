@@ -8,6 +8,8 @@ const pingPrefix = `PNG`;
 const disconnectPrefix = `END`;
 const shutdownPrefix = `UWU`;
 
+var lastNotification = ``;
+
 var socketRegistry = [];
 
 // Callback here is called on event 'connection,' and returns a socket object to the connection
@@ -34,17 +36,12 @@ const server = net.createServer( (socket) => {
             case messagePrefix:
                 // Post message to Discord
                 let snow = res.substr(4, 2000).trim();
-                //snow.replace(`MSG `, ` `);
+                if(snow == lastNotification) break;
                 console.log(`[${Date()}] Snow day! ${snow}`);
 
-                socketRegistry.forEach( (connectionSocket) => {
+                // Add stuff
 
-                    if(!connectionSocket.destroyed){
-                        connectionSocket.write(`MSG ${snow}`);
-                        connectionSocket.write(`\n`);
-
-                    }
-                });
+                lastNotification = snow;
 
                 break;
 

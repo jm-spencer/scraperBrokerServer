@@ -9,7 +9,6 @@ target = 2;
 
 // Define switch cases
 const disconnectPrefix = 'END';
-const messagePrefix = `MSG`;
 
 // Scraping - Adapted from original Snow Day Bot
 async function scrape() {
@@ -64,12 +63,6 @@ client.on('data', (res) => {
             console.log(res);
             console.log(`[${Date()}] EMERGENCY DISCONNECT`);
             client.end()
-            break;
-
-        case messagePrefix:
-            let snow = res.substr(4, 2000).trim();
-            console.log(`${Date()} Snow day! ${snow}`);
-            notification = snow;
             break;
 
         default:
