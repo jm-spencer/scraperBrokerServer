@@ -81,7 +81,7 @@ function connect() { // Connect
 
         connect();
 
-    }); //
+    });
 }
 
 connect();
