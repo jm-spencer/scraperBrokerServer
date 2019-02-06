@@ -10,70 +10,80 @@ target = 2;
 // Define switch cases
 const disconnectPrefix = 'END';
 
+
+
+
+function connect() { // Connect
 // Scraping - Adapted from original Snow Day Bot
-async function scrape() {
+    async function scrape() {
 
-    switch(target) {
-        case 0:
-            return rp('https://www.calverthall.com/page').catch((e) => console.error('\x1b[41m%s\x1b[0m',e));
+        switch(target) {
+            case 0:
+                return rp('https://www.calverthall.com/page').catch((e) => console.error('\x1b[41m%s\x1b[0m',e));
 
-        case 1:
-            return fs.readFileSync('./Calvert Hall - Normal.html');
+            case 1:
+                return fs.readFileSync('./Calvert Hall - Normal.html');
 
-        case 2:
-            return fs.readFileSync('./Calvert Hall - Snow Day.html');
+            case 2:
+                return fs.readFileSync('./Calvert Hall - Snow Day.html');
 
-        default:
-            console.error('\x1b[41m%s\x1b[0m', `[${Date()}] INVALID TARGET: ${target}`);
+            default:
+                console.error('\x1b[41m%s\x1b[0m', `[${Date()}] INVALID TARGET: ${target}`);
 
-    }
-}
-
-// Parse message - Adapted from original Snow Day Bot
-async function parse() {
-
-    let $ = cheerio.load(await scrape());
-    var notification = $('.message').first().text().trim();
-    if(notification == lastNotification) return;
-    lastNotification = notification;
-    if(!notification) return;
-    console.log(notification); // Log for testing purposes
-    client.write(`MSG ${notification}`);
-
-}
-
-// Establish a connection to the server
-const client = net.createConnection({port: 8081}, {host: 'localhost'}, () => { // Change host variable according to server location
-
-    console.log(`[${Date()}] CONNECTING`);
-    client.write('PNG'); // Fake ping report for testing purposes
-
-    client.setEncoding('utf8');
-
-    parse();
-
-});
-
-// Data event handler
-client.on('data', (res) => {
-
-    let message = res.slice(0, 3);
-    switch(message) {
-        case disconnectPrefix:
-            console.log(res);
-            console.log(`[${Date()}] EMERGENCY DISCONNECT`);
-            client.end()
-            break;
-
-        default:
-            console.log(res);
+        }
     }
 
-});
+    // Parse message - Adapted from original Snow Day Bot
+    async function parse() {
 
-// End event handler
-client.on('end', () => {
+        let $ = cheerio.load(await scrape());
+        var notification = $('.message').first().text().trim();
+        if(notification == lastNotification) return;
+        lastNotification = notification;
+        if(!notification) return;
+        console.log(notification); // Log for testing purposes
+        client.write(`MSG ${notification}`);
 
-    console.log(`[${Date()}] DISCONNECTED FROM SERVER`);
+    }
 
-});
+    const client = new net.Socket();
+    client.connect({port: 8081}, {host: 'localhost'}, () => { // Change host variable according to server location
+
+        console.log(`[${Date()}] CONNECTING`);
+        client.write('PNG'); // Fake ping report for testing purposes
+
+        client.setEncoding('utf8');
+
+        parse();
+
+    });
+
+    // Data event handler
+    client.on('data', (res) => {
+
+        let message = res.slice(0, 3);
+        switch(message) {
+            case disconnectPrefix:
+                console.log(res);
+                console.log(`[${Date()}] EMERGENCY DISCONNECT`);
+                client.end()
+                break;
+
+            default:
+                console.log(res);
+        }
+
+    });
+
+    // End event handler
+    client.on('end', () => {
+
+        console.log(`[${Date()}] DISCONNECTED FROM SERVER`);
+        connect();
+
+    });
+
+    client.on(`error`, () => {}); // Get rid of the dumb exception
+}
+
+connect();
