@@ -10,9 +10,6 @@ target = 2;
 // Define switch cases
 const disconnectPrefix = 'END';
 
-
-
-
 function connect() { // Connect
 
     async function scrape() { // Scraping - Adapted from original Snow Day Bot
