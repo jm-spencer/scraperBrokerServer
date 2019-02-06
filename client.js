@@ -14,8 +14,8 @@ const disconnectPrefix = 'END';
 
 
 function connect() { // Connect
-// Scraping - Adapted from original Snow Day Bot
-    async function scrape() {
+
+    async function scrape() { // Scraping - Adapted from original Snow Day Bot
 
         switch(target) {
             case 0:
@@ -33,8 +33,7 @@ function connect() { // Connect
         }
     }
 
-    // Parse message - Adapted from original Snow Day Bot
-    async function parse() {
+    async function parse() { // Parse message - Adapted from original Snow Day Bot
 
         let $ = cheerio.load(await scrape());
         var notification = $('.message').first().text().trim();
@@ -58,8 +57,7 @@ function connect() { // Connect
 
     });
 
-    // Data event handler
-    client.on('data', (res) => {
+    client.on('data', (res) => { // Handle data
 
         let message = res.slice(0, 3);
         switch(message) {
@@ -75,15 +73,18 @@ function connect() { // Connect
 
     });
 
-    // End event handler
-    client.on('end', () => {
+    client.on('end', () => { // Reconnect on `end` event
 
         console.log(`[${Date()}] DISCONNECTED FROM SERVER`);
         connect();
 
     });
 
-    client.on(`error`, () => {}); // Get rid of the dumb exception
+    client.on(`error`, () => { // Reconnect on an error
+
+        connect();
+
+    }); //
 }
 
 connect();
