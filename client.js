@@ -48,10 +48,8 @@ function connect() { // Connect
         console.log(`[${Date()}] CONNECTING`);
         client.setEncoding('utf8');
 
-        setInterval( () => {
             parse();
             client.write(`PNG [${Date()}]`);
-        }, 2000);
 
     });
 
