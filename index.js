@@ -52,7 +52,8 @@ const server = net.createServer( (socket) => {
                 socketRegistry.forEach( (connectionSocket) => {
 
                     if(!connectionSocket.destroyed){
-                        connectionSocket.write(`[${Date()}] Ping!\n`);
+
+                        connectionSocket.write(res);
 
                     }
                 });

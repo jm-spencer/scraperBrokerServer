@@ -9,6 +9,7 @@ target = 2;
 
 // Define switch cases
 const disconnectPrefix = 'END';
+const pingPrefix = `PNG`;
 
 function connect() { // Connect
 
@@ -37,8 +38,7 @@ function connect() { // Connect
         if(notification == lastNotification) return;
         lastNotification = notification;
         if(!notification) return;
-        console.log(notification); // Log for testing purposes
-        client.write(`MSG ${notification}`);
+        client.write(`MSG ${notification}`); // Update latest message on server
 
     }
 
@@ -46,11 +46,12 @@ function connect() { // Connect
     client.connect({port: 8081}, {host: 'localhost'}, () => { // Change host variable according to server location
 
         console.log(`[${Date()}] CONNECTING`);
-        client.write('PNG'); // Fake ping report for testing purposes
-
         client.setEncoding('utf8');
 
-        parse();
+        setInterval( () => {
+            parse();
+            client.write(`PNG [${Date()}]`);
+        }, 2000);
 
     });
 
@@ -62,6 +63,10 @@ function connect() { // Connect
                 console.log(res);
                 console.log(`[${Date()}] EMERGENCY DISCONNECT`);
                 client.end()
+                break;
+
+            case pingPrefix:
+                console.log(res); // Log ping time in console
                 break;
 
             default:
