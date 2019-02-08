@@ -10,6 +10,7 @@ target = 2;
 // Define switch cases
 const disconnectPrefix = 'END';
 const pingPrefix = `PNG`;
+const activePrefix = `ACT`;
 
 function connect() { // Connect
 
@@ -48,12 +49,14 @@ function connect() { // Connect
         console.log(`[${Date()}] CONNECTING`);
         client.setEncoding('utf8');
 
-            parse();
-            client.write(`PNG [${Date()}]`);
+        client.write(`REG`); // Register with the server
+
+        parse();
+        client.write(`PNG [${Date()}]`);
 
     });
 
-    client.on('data', (res) => { // Handle data
+    client.on(`data`, (res) => { // Handle data
 
         let message = res.slice(0, 3);
         switch(message) {
@@ -65,6 +68,11 @@ function connect() { // Connect
 
             case pingPrefix:
                 console.log(res); // Log ping time in console
+                break;
+
+            case activePrefix:
+                let active = res.slice(4, 8).trim();
+                console.log(`[${Date()}] ${active} clients active`);
                 break;
 
             default:

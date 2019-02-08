@@ -7,6 +7,7 @@ const messagePrefix = `MSG`;
 const pingPrefix = `PNG`;
 const disconnectPrefix = `END`;
 const shutdownPrefix = `UWU`;
+const registerPrefix = `REG`;
 
 var lastNotification = ``;
 
@@ -14,16 +15,12 @@ var socketRegistry = [];
 
 // Callback here is called on event 'connection,' and returns a socket object to the connection
 const server = net.createServer( (socket) => {
-
-    // Notify presence of new connection
-    console.log(`Client at , ${socket.remoteAddress}`);
     
-    // Send a message to the client and pipe client data to the terminal
-    socket.write(`[CONNECTION ESTABLISHED]\n`);
-
     // Add to registry
     socketRegistry.push(socket);
 
+    // Send a message to the client and pipe client data to the terminal
+    socket.write(`[CONNECTION ESTABLISHED]\n`);
 
     // Assign event callbacks
     socket.setEncoding('utf8');
@@ -47,7 +44,6 @@ const server = net.createServer( (socket) => {
 
             case pingPrefix:
                 // Distribute ping-time data
-                console.log(`[${Date()}] Ping-Time Data received - Distributing...`);
 
                 socketRegistry.forEach( (connectionSocket) => {
 
@@ -78,6 +74,25 @@ const server = net.createServer( (socket) => {
                 process.exit();
                 break;
 
+            case registerPrefix:
+                 // Log connections and active clients
+                server.getConnections( (err,n) => {
+
+                    if(err) console.error(err);
+                    console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${n} active)`);
+
+                    socketRegistry.forEach( (connectionSocket) => {
+
+                        if(!connectionSocket.destroyed){
+
+                            connectionSocket.write(`ACT ${n}`);
+
+                         }
+                    });
+
+                });
+                break;
+
             default:
                 // Log queer messages
                 console.log(`[${Date()}] Queer message - Logging...`);
@@ -94,7 +109,7 @@ const server = net.createServer( (socket) => {
         server.getConnections( (err,n) => { // Log disconnections and active clients
 
             if(err) console.error(err);
-            console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active )`);
+            console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
 
         });
 
