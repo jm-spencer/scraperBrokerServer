@@ -7,6 +7,9 @@ const fs = require('fs');
 var lastNotification = '';
 target = 2;
 var active;
+var pDef = 2000;
+var interval = null;
+var timeout = null;
 
 // Define switch cases
 const disconnectPrefix = 'END';
@@ -34,6 +37,7 @@ function connect() { // Connect
 
     async function parse() { // Parse message - Adapted from original Snow Day Bot
 
+        console.log(`${Date()} Start`);
         let $ = cheerio.load(await scrape());
         var notification = $('.message').first().text().trim();
         if(notification == lastNotification) return;
@@ -43,15 +47,35 @@ function connect() { // Connect
 
     }
 
+    async function pSched(){ // Schedule theh ping interval
+
+        let lowRand = (Math.random() * ((pDef*.5) - (pDef*.05)) + (pDef*.05));
+
+        timeout = setTimeout( () => {
+            interval = setInterval(parse, pDef);
+        }, Math.random() * (pDef - lowRand) + lowRand);
+    }
+
+    async function antiSched(){ // Remove scheduling to avoid stupid dumb loops / memory leaks / duped clients
+
+            clearInterval(interval);
+            clearTimeout(timeout);
+
+    }
+
     const client = new net.Socket();
     client.connect({port: 8081}, {host: 'localhost'}, () => { // Change host variable according to server location
 
         console.log(`[${Date()}] CONNECTED TO SERVER`);
         client.setEncoding('utf8');
 
-        client.write(`REG`); // Register with the server
+        let lowRand = (Math.random() * ((pDef*.5) - (pDef*.05)) + (pDef*.05));
 
-        parse();
+        timeout = setTimeout( () => { // Delay registration to avoid pDef being something that is not a number
+            client.write(`REG`); // Register with the server
+        }, Math.random() * (pDef - lowRand) + lowRand);
+
+
 
     });
 
@@ -61,7 +85,7 @@ function connect() { // Connect
 
         switch(message) {
 
-            case disconnectPrefix:
+            case disconnectPrefix: // Abort client if there is an emergency disconnect signal
                 console.log(res);
                 console.log(`[${Date()}] EMERGENCY DISCONNECT`);
                 client.end()
@@ -69,7 +93,18 @@ function connect() { // Connect
 
             case activePrefix: // Inform client of number of active clients for ping scheduling
                 active = res.slice(4, 8).trim();
-                console.log(`[${Date()}] ${active} clients active`);
+
+                pDef = active * 2000;
+
+                let numCheck = isNaN(pDef);
+
+                if(pDef < 2000) break;
+                if(numCheck != false) break;
+                console.log(pDef);
+
+                antiSched();
+                pSched();
+
                 break;
 
             default:
@@ -81,6 +116,7 @@ function connect() { // Connect
 
     client.on('end', () => { // Reconnect on `end` event
 
+        antiSched();
         console.log(`[${Date()}] DISCONNECTED FROM SERVER`);
         connect();
 
@@ -88,6 +124,7 @@ function connect() { // Connect
 
     client.on(`error`, () => { // Reconnect on an error
 
+        antiSched();
         connect();
 
     });

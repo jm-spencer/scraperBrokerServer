@@ -93,6 +93,14 @@ const server = net.createServer( (socket) => {
 
             if(err) console.error(err);
             console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
+            socketRegistry.forEach( (connectionSocket) => {
+
+                if(!connectionSocket.destroyed){
+
+                    connectionSocket.write(`ACT ${n}`);
+
+                 }
+            });
 
         });
 
