@@ -6,10 +6,10 @@ const fs = require('fs');
 
 var lastNotification = '';
 target = 2;
+var active;
 
 // Define switch cases
 const disconnectPrefix = 'END';
-const pingPrefix = `PNG`;
 const activePrefix = `ACT`;
 
 function connect() { // Connect
@@ -46,37 +46,35 @@ function connect() { // Connect
     const client = new net.Socket();
     client.connect({port: 8081}, {host: 'localhost'}, () => { // Change host variable according to server location
 
-        console.log(`[${Date()}] CONNECTING`);
+        console.log(`[${Date()}] CONNECTED TO SERVER`);
         client.setEncoding('utf8');
 
         client.write(`REG`); // Register with the server
 
         parse();
-        client.write(`PNG [${Date()}]`);
 
     });
 
     client.on(`data`, (res) => { // Handle data
 
         let message = res.slice(0, 3);
+
         switch(message) {
+
             case disconnectPrefix:
                 console.log(res);
                 console.log(`[${Date()}] EMERGENCY DISCONNECT`);
                 client.end()
                 break;
 
-            case pingPrefix:
-                console.log(res); // Log ping time in console
-                break;
-
-            case activePrefix:
-                let active = res.slice(4, 8).trim();
+            case activePrefix: // Inform client of number of active clients for ping scheduling
+                active = res.slice(4, 8).trim();
                 console.log(`[${Date()}] ${active} clients active`);
                 break;
 
             default:
                 console.log(res);
+
         }
 
     });

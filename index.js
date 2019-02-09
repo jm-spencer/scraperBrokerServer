@@ -4,7 +4,6 @@ const fs = require('fs');
 
 // Define switch cases
 const messagePrefix = `MSG`;
-const pingPrefix = `PNG`;
 const disconnectPrefix = `END`;
 const shutdownPrefix = `UWU`;
 const registerPrefix = `REG`;
@@ -18,9 +17,6 @@ const server = net.createServer( (socket) => {
     
     // Add to registry
     socketRegistry.push(socket);
-
-    // Send a message to the client and pipe client data to the terminal
-    socket.write(`[CONNECTION ESTABLISHED]\n`);
 
     // Assign event callbacks
     socket.setEncoding('utf8');
@@ -40,19 +36,6 @@ const server = net.createServer( (socket) => {
 
                 lastNotification = snow;
 
-                break;
-
-            case pingPrefix:
-                // Distribute ping-time data
-
-                socketRegistry.forEach( (connectionSocket) => {
-
-                    if(!connectionSocket.destroyed){
-
-                        connectionSocket.write(res);
-
-                    }
-                });
                 break;
 
             case disconnectPrefix:
