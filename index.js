@@ -1,4 +1,3 @@
-
 const net = require('net');
 const fs = require('fs');
 
@@ -13,8 +12,8 @@ var lastNotification = ``;
 var socketRegistry = [];
 
 // Callback here is called on event 'connection,' and returns a socket object to the connection
-const server = net.createServer( (socket) => {
-    
+const server = net.createServer((socket) => {
+
     // Add to registry
     socketRegistry.push(socket);
 
@@ -24,12 +23,12 @@ const server = net.createServer( (socket) => {
 
         let message = res.slice(0, 3);
 
-        switch(message) {
+        switch (message) {
 
             case messagePrefix:
                 // Post message to Discord
                 let snow = res.substr(4, 2000).trim();
-                if(snow == lastNotification) break;
+                if (snow == lastNotification) break;
                 console.log(`[${Date()}] Snow day! ${snow}`);
 
                 // Add stuff
@@ -41,10 +40,10 @@ const server = net.createServer( (socket) => {
             case disconnectPrefix:
                 // Stop communicating with bots
                 console.log(`[${Date()}] Emergency communications shutoff - Disconnecting from bots...`);
-                
-                socketRegistry.forEach( (connectionSocket) => {
 
-                    if(!connectionSocket.destroyed){
+                socketRegistry.forEach((connectionSocket) => {
+
+                    if (!connectionSocket.destroyed) {
                         connectionSocket.write(`END @ [${Date()}]\n`);
 
                     }
@@ -58,19 +57,19 @@ const server = net.createServer( (socket) => {
                 break;
 
             case registerPrefix:
-                 // Log connections and active clients
-                server.getConnections( (err,n) => {
+                // Log connections and active clients
+                server.getConnections((err, n) => {
 
-                    if(err) console.error(err);
+                    if (err) console.error(err);
                     console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${n} active)`);
 
-                    socketRegistry.forEach( (connectionSocket) => {
+                    socketRegistry.forEach((connectionSocket) => {
 
-                        if(!connectionSocket.destroyed){
+                        if (!connectionSocket.destroyed) {
 
                             connectionSocket.write(`ACT ${n}`);
 
-                         }
+                        }
                     });
 
                 });
@@ -79,27 +78,27 @@ const server = net.createServer( (socket) => {
             default:
                 // Log queer messages
                 console.log(`[${Date()}] Queer message - Logging...`);
-                fs.appendFile('LOG', `[${Date()}] - ${res}`, (e) => console.error('\x1b[41m%s\x1b[0m',e));
+                fs.appendFile('LOG', `[${Date()}] - ${res}`, (e) => console.error('\x1b[41m%s\x1b[0m', e));
 
         }
 
     });
 
-    socket.on('error', (e) => console.error('\x1b[41m%s\x1b[0m',e));
+    socket.on('error', (e) => console.error('\x1b[41m%s\x1b[0m', e));
 
     socket.on('end', () => {
 
-        server.getConnections( (err,n) => { // Log disconnections and active clients
+        server.getConnections((err, n) => { // Log disconnections and active clients
 
-            if(err) console.error(err);
+            if (err) console.error(err);
             console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
-            socketRegistry.forEach( (connectionSocket) => {
+            socketRegistry.forEach((connectionSocket) => {
 
-                if(!connectionSocket.destroyed){
+                if (!connectionSocket.destroyed) {
 
                     connectionSocket.write(`ACT ${n}`);
 
-                 }
+                }
             });
 
         });
@@ -107,7 +106,7 @@ const server = net.createServer( (socket) => {
     });
 });
 
-server.on('error', (e) => console.error('\x1b[41m%s\x1b[0m',e));
+server.on('error', (e) => console.error('\x1b[41m%s\x1b[0m', e));
 
 server.listen(8081, () => { // Server listens on port 8081
 
