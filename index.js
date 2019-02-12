@@ -29,6 +29,15 @@ const server = net.createServer((socket) => {
     socket.setEncoding('utf8');
     socket.on('data', (req) => {
 
+        // Error handling for JSON strings
+        try {
+            JSON.parse(req);
+        } catch(err) {
+            console.error("Bad String");
+            return;
+        }
+
+        // Convert JSON string to an object
         let obj = JSON.parse(req);
 
         switch (obj.tag) {
