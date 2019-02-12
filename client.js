@@ -10,6 +10,14 @@ var pDef = 2000;
 var interval = null;
 var timeout = null;
 
+// Missive class constructor
+function missive(tag, content) {
+
+    this.tag = tag;
+    this.content = content;
+
+}
+
 // Define switch cases
 const disconnectPrefix = 'END';
 const activePrefix = `ACT`;
@@ -38,11 +46,11 @@ function connect() { // Connect
 
         console.log(`${Date()} Start`);
         let $ = cheerio.load(await scrape());
-        var notification = $('.message').first().text().trim();
-        if (notification == lastNotification) return;
-        lastNotification = notification;
-        if (!notification) return;
-        client.write(`MSG ${notification}`); // Update latest message on server
+        let msg = new missive('MSG', $('.message').first().text().trim());
+        if (msg.content == lastNotification) return;
+        lastNotification = msg.content;
+        if (!msg.content) return;
+        client.write(JSON.stringify(msg)); // Update latest message on server
 
     }
 
@@ -75,29 +83,27 @@ function connect() { // Connect
         let lowRand = (Math.random() * ((pDef * .5) - (pDef * .05)) + (pDef * .05));
 
         timeout = setTimeout(() => { // Delay registration to avoid pDef being something that is not a number
-            client.write(`REG`); // Register with the server
+            let reg = new missive('REG', null);
+            client.write(JSON.stringify(reg)); // Register with the server
         }, Math.random() * (pDef - lowRand) + lowRand);
-
-
 
     });
 
     client.on(`data`, (res) => { // Handle data
 
-        let message = res.slice(0, 3);
+        let obj = JSON.parse(res);
 
-        switch (message) {
+        switch (obj.tag) {
 
             case disconnectPrefix: // Abort client if there is an emergency disconnect signal
-                console.log(res);
+                console.log(obj.content);
                 console.log(`[${Date()}] EMERGENCY DISCONNECT`);
                 client.end()
                 break;
 
             case activePrefix: // Inform client of number of active clients for ping scheduling
-                active = res.slice(4, 8).trim();
 
-                pDef = active * 2000;
+                pDef = obj.content * 2000;
 
                 let numCheck = isNaN(pDef);
 
@@ -111,7 +117,7 @@ function connect() { // Connect
                 break;
 
             default:
-                console.log(res);
+                console.log(obj.content);
 
         }
 
