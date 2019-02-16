@@ -5,13 +5,13 @@ const fs = require('fs');
 
 var lastNotification = '';
 target = 2;
-var active;
-var pDef = 2000;
+var pDef;
+var interDef; 
 var interval = null;
 var timeout = null;
 
 // Missive class constructor
-function missive(tag, content) {
+function Missive(tag, content) {
 
     this.tag = tag;
     this.content = content;
@@ -20,7 +20,7 @@ function missive(tag, content) {
 
 // Define switch cases
 const disconnectPrefix = 'END';
-const activePrefix = `ACT`;
+const idPrefix = 'ID';
 
 function connect() { // Connect
 
@@ -46,7 +46,7 @@ function connect() { // Connect
 
         console.log(`${Date()} Start`);
         let $ = cheerio.load(await scrape());
-        let msg = new missive('MSG', $('.message').first().text().trim());
+        let msg = new Missive('MSG', $('.message').first().text().trim());
         if (msg.content == lastNotification) return;
         lastNotification = msg.content;
         if (!msg.content) return;
@@ -56,11 +56,9 @@ function connect() { // Connect
 
     async function pSched() { // Schedule theh ping interval
 
-        let lowRand = (Math.random() * ((pDef * .5) - (pDef * .05)) + (pDef * .05));
-
         timeout = setTimeout(() => {
-            interval = setInterval(parse, pDef);
-        }, Math.random() * (pDef - lowRand) + lowRand);
+            interval = setInterval(parse, interDef);
+        }, pDef);
     }
 
     async function antiSched() { // Remove scheduling to avoid stupid dumb loops / memory leaks / duped clients
@@ -83,7 +81,7 @@ function connect() { // Connect
         let lowRand = (Math.random() * ((pDef * .5) - (pDef * .05)) + (pDef * .05));
 
         timeout = setTimeout(() => { // Delay registration to avoid pDef being something that is not a number
-            let reg = new missive('REG', null);
+            let reg = new Missive('REG', null);
             client.write(JSON.stringify(reg)); // Register with the server
         }, Math.random() * (pDef - lowRand) + lowRand);
 
@@ -101,13 +99,13 @@ function connect() { // Connect
                 client.end()
                 break;
 
-            case activePrefix: // Inform client of number of active clients for ping scheduling
+            case idPrefix: // Inform client of number of active clients for ping scheduling
 
                 pDef = obj.content * 2000;
+                interDef = obj.active * 2000;
 
                 let numCheck = isNaN(pDef);
 
-                if (pDef < 2000) break;
                 if (numCheck != false) break;
                 console.log(pDef);
 

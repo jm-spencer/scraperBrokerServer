@@ -2,7 +2,7 @@ const net = require('net');
 const fs = require('fs');
 
 // Missive class constructor
-function missive(tag, content) {
+function Missive(tag, content) {
 
     this.tag = tag;
     this.content = content;
@@ -18,6 +18,8 @@ const registerPrefix = `REG`;
 var lastNotification = ``;
 
 var socketRegistry = [];
+
+var idFinder = 0;
 
 // Callback here is called on event 'connection,' and returns a socket object to the connection
 const server = net.createServer((socket) => {
@@ -56,8 +58,8 @@ const server = net.createServer((socket) => {
             case disconnectPrefix:
                 // Stop communicating with bots
 
-                // New missive instance
-                let end = new missive('END', `[${Date()}] END SIGNAL`)
+                // New Missive instance
+                let end = new Missive('END', `[${Date()}] END SIGNAL`)
                 console.log(`[${Date()}] Emergency communications shutoff - Disconnecting from bots...`);
 
                 socketRegistry.forEach((connectionSocket) => {
@@ -79,7 +81,7 @@ const server = net.createServer((socket) => {
                 // Log connections and active clients
                 server.getConnections((err, n) => {
 
-                    let act = new missive('ACT', n);
+                    idFinder = 0;
 
                     if (err) console.error(err);
                     console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${n} active)`);
@@ -88,7 +90,11 @@ const server = net.createServer((socket) => {
 
                         if (!connectionSocket.destroyed) {
 
-                            connectionSocket.write(JSON.stringify(act));
+                            let id = new Missive('ID', idFinder);
+                            id['active'] = n;
+
+                            connectionSocket.write(JSON.stringify(id));
+                            idFinder++;
 
                         }
                     });
@@ -109,10 +115,12 @@ const server = net.createServer((socket) => {
 
     socket.on('end', () => {
 
+        let index = socketRegistry.indexOf(socket);
+        if(index !== -1) socketRegistry.splice(index, 1);
+
         server.getConnections((err, n) => { // Log disconnections and active clients
 
-            // New missive instance
-            let act = new missive('ACT', n);
+            idFinder = 0;
 
             if (err) console.error(err);
             console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
@@ -120,7 +128,11 @@ const server = net.createServer((socket) => {
 
                 if (!connectionSocket.destroyed) {
 
-                    connectionSocket.write(JSON.stringify(act));
+                    let id = new Missive('ID', idFinder);
+                    id['active'] = n;
+                    
+                    connectionSocket.write(JSON.stringify(id));
+                    idFinder++;
 
                 }
             });
