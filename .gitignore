@@ -61,4 +61,4 @@ typings/
 .next
 
 # HTML files
-*.html
+.html

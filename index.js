@@ -11,8 +11,7 @@ const disconnectPrefix = `END`;
 const shutdownPrefix = `UWU`;
 const registerPrefix = `REG`;
 
-var lastNotification = ``;  // Define misc. variables
-var socketRegistry = [];
+var socketRegistry = []; // Define misc. variables
 var idFinder = 0;
 
 const server = net.createServer((socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
@@ -31,12 +30,12 @@ const server = net.createServer((socket) => {   // Callback here is called on ev
 
         switch (obj.tag) {
             case messagePrefix: // Log snow message and post it to Discord
-                if (obj.content == lastNotification) break;
+                if (obj.content == fs.readFileSync('lastNotification.log')) break;
                 console.log(`[${Date()}] Snow day! ${obj.content}`);
 
                 // Add stuff
 
-                lastNotification = obj.content;
+                fs.writeFileSync('lastNotification.log', obj.content);
 
                 break;
 
@@ -63,6 +62,7 @@ const server = net.createServer((socket) => {   // Callback here is called on ev
                         if (!connectionSocket.destroyed) { 
                             let id = new Missive('ID', idFinder);
                             id['active'] = n;
+                            id['interval'] = 2000;
                             connectionSocket.write(JSON.stringify(id));
                             idFinder++;
                         }
@@ -74,25 +74,24 @@ const server = net.createServer((socket) => {   // Callback here is called on ev
                 console.log(`[${Date()}] Queer message - Logging...`);  // Log queer messages
                 fs.appendFile('LOG', `[${Date()}] - ${req.tag + req.content}`, (e) => console.error('\x1b[41m%s\x1b[0m', e));
         }
-
     });
 
     socket.on('error', (e) => console.error('\x1b[41m%s\x1b[0m', e));
 
     socket.on('end', () => {
-        let index = socketRegistry.indexOf(socket);
-        if(index !== -1) socketRegistry.splice(index, 1);
-
         server.getConnections((err, n) => { // Log disconnections and active clients
             idFinder = 0;
 
             if (err) console.error(err);
             console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
+            let index = socketRegistry.indexOf(socket);
+            if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
 
-            socketRegistry.forEach((connectionSocket) => {
+            socketRegistry.forEach((connectionSocket) => {  // Update client ID information
                 if (!connectionSocket.destroyed) {
                     let id = new Missive('ID', idFinder);
                     id['active'] = n;
+                    id['interval'] = 2000;
                     connectionSocket.write(JSON.stringify(id));
                     idFinder++;
                 }

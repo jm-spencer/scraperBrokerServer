@@ -6,7 +6,6 @@ const fs = require('fs');
 var lastNotification = '';
 let target = 2;
 var pDef, interDef; 
-var pingInterval = 2000; // Change this to make pings more or less frequent
 var interval, timeout = null;
 
 function Missive(tag, content) { // Construct the Missive class
@@ -18,7 +17,6 @@ const disconnectPrefix = 'END'; // Define tags
 const idPrefix = 'ID';
 
 function connect() { // Connect
-
     async function scrape() { // Scraping - Adapted from original Snow Day Bot
         switch (target) {
             case 0:
@@ -36,7 +34,7 @@ function connect() { // Connect
     }
 
     async function parse() { // Parse message - Adapted from original Snow Day Bot
-        // console.log(`${Date()} Start`); ###Uncomment this to enable real-time ping-time notifications###
+        console.log(`${Date()} Start`); // ###Uncomment this to enable real-time ping-time notifications###
         let $ = cheerio.load(await scrape());
         let msg = new Missive('MSG', $('.message').first().text().trim());
         if (msg.content == lastNotification) return;
@@ -66,12 +64,10 @@ function connect() { // Connect
         console.log(`[${Date()}] CONNECTED TO SERVER`);
         client.setEncoding('utf8');
 
-        let lowRand = (Math.random() * ((pDef * .5) - (pDef * .05)) + (pDef * .05));
-
-        timeout = setTimeout(() => { // Delay registration to avoid pDef being something that is not a number
+        timeout = setTimeout(() => { // Delay registration to avoid a broken interval
             let reg = new Missive('REG', null);
             client.write(JSON.stringify(reg)); // Register with the server
-        }, Math.random() * (pDef - lowRand) + lowRand);
+        }, 500);
     });
 
     client.on(`data`, (res) => { // Handle data
@@ -85,8 +81,9 @@ function connect() { // Connect
                 break;
 
             case idPrefix: // Inform client of number of active clients for ping scheduling
-                pDef = obj.content * pingInterval;
-                interDef = obj.active * pingInterval;
+                console.log(obj);
+                pDef = obj.content * obj.interval;
+                interDef = obj.active * obj.interval;
 
                 antiSched();
                 pSched();
@@ -95,7 +92,6 @@ function connect() { // Connect
             default:
                 console.log(obj.content);
         }
-
     });
 
     client.on('end', () => { // Reconnect on `end` event
