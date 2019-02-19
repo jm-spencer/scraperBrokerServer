@@ -33,14 +33,13 @@ client.on("ready", () => {
 
         socket.setEncoding('utf8');
         socket.on('data', (req) => {    // Assign event callbacks
+            let obj = {};
             try {   // Error handling for JSON strings
-                JSON.parse(req);
+                obj = JSON.parse(req);
             } catch(err) {
-                console.error("Bad String");
+                console.error(`[${Date()}] Bad string from ${socket.remoteAddress}`);
                 return;
             }
-
-            let obj = JSON.parse(req); // Convert JSON string to an object
 
             switch (obj.tag) {
                 case messagePrefix: // Log snow message and post it to Discord
