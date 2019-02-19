@@ -1,6 +1,6 @@
 const net = require('net');
 const fs = require('fs');
-const Discord = require("Discord.js");
+const Discord = require("discord.js");
 
 const client = new Discord.Client();
 
