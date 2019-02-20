@@ -3,6 +3,8 @@ const rp = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs');
 
+const serverAddress = process.env.SERVERADDRESS;
+
 var lastNotification = '';
 var target = 2;
 var pDef, interDef; 
@@ -18,7 +20,8 @@ const idPrefix = 'ID';
 
 
 function connect() { // Connect  
-
+    
+    lastNotification = '';
 
     async function scrape() { // Scraping - Adapted from original Snow Day Bot
         switch (target) {
@@ -37,7 +40,6 @@ function connect() { // Connect
     }
 
     async function parse() { // Parse message - Adapted from original Snow Day Bot
-        console.log(`${Date()} Start`); // ###Uncomment this to enable real-time ping-time notifications###
         let $ = cheerio.load(await scrape());
         let msg = new Missive('MSG', $('.message').first().text().trim());
         if (msg.content == lastNotification) return;
@@ -46,7 +48,8 @@ function connect() { // Connect
         client.write(JSON.stringify(msg)); // Update latest message on server
     }
 
-    async function pSched() { // Schedule theh ping interval
+    async function pSched() { // Schedule the ping interval
+        console.log(`[${Date()}] Scheduling ping with interval {${interDef}} and offset {${pDef}}`);
         timeout = setTimeout(() => {
             parse();
             interval = setInterval(parse, interDef);
@@ -60,11 +63,11 @@ function connect() { // Connect
 
     const client = new net.Socket();
 
-    client.connect({
-        port: 8081
-    }, {
-        host: 'localhost' // Change host variable according to server location
-    }, () => {
+    client.connect(
+        8081,
+        serverAddress, 
+        
+        () => {
         console.log(`[${Date()}] CONNECTED TO SERVER`);
         client.setEncoding('utf8');
 
@@ -96,12 +99,14 @@ function connect() { // Connect
     });
 
     client.on('end', () => { // Reconnect on `end` event
-        antiSched();
         console.log(`[${Date()}] DISCONNECTED FROM SERVER`);
+        antiSched();
         connect();
     });
 
-    client.on(`error`, () => { // Reconnect on an error
+    client.on(`error`, (err) => { // Reconnect on an error
+        console.error('\x1b[41m%s\x1b[0m', `[${Date()}] Socket ${err}`);
+
         antiSched();
         connect();
     });
