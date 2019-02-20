@@ -19,7 +19,7 @@ var socketRegistry = []; // Define misc. variables
 var idFinder = 0;
 
 const token = process.env.SNOWDAYBOTTOKEN;
-const announcementChannels = ['475116538773372988'];//,'534074116399955968','388480229938823168'];
+const announcementChannels = ['478909678055587840'];
 const useEveryone = false;
 
 client.login(token);
