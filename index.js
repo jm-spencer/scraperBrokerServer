@@ -29,7 +29,6 @@ client.on("ready", () => {
     console.log("\x1b[44m%s\x1b[0m","Initialized");
 
     const server = net.createServer((socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
-        socketRegistry.push(socket);    // Add new socket to the registry
 
         socket.setEncoding('utf8');
         socket.on('data', (req) => {    // Assign event callbacks
@@ -67,18 +66,19 @@ client.on("ready", () => {
                     break;
 
                 case registerPrefix: // Add new clients to the network, inform all clients of new ping schedule
-                        idFinder = 0;
-                        console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${socketRegistry.length} active)`);
+                    socketRegistry.push(socket);    // Add new socket to the registry
+                    idFinder = 0;
+                    console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${socketRegistry.length} active)`);
 
-                        socketRegistry.forEach((connectionSocket) => {
-                            if (!connectionSocket.destroyed) { 
-                                let id = new Missive('ID', idFinder);
-                                id['active'] = socketRegistry.length;
-                                id['interval'] = 2000;
-                                connectionSocket.write(JSON.stringify(id));
-                                idFinder++;
-                            }
-                        });
+                    socketRegistry.forEach((connectionSocket) => {
+                        if (!connectionSocket.destroyed) { 
+                            let id = new Missive('ID', idFinder);
+                            id['active'] = socketRegistry.length;
+                            id['interval'] = 2000;
+                            connectionSocket.write(JSON.stringify(id));
+                            idFinder++;
+                        }
+                    });
                     break;
 
                 default:
@@ -90,20 +90,20 @@ client.on("ready", () => {
         socket.on('error', (e) => console.error('\x1b[41m%s\x1b[0m', e));
 
         socket.on('end', () => {
-                idFinder = 0;
-                console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${socketRegistry.length} active)`);
-                let index = socketRegistry.indexOf(socket);
-                if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
+            idFinder = 0;
+            console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${socketRegistry.length} active)`);
+            let index = socketRegistry.indexOf(socket);
+            if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
 
-                socketRegistry.forEach((connectionSocket) => {  // Update client ID information
-                    if (!connectionSocket.destroyed) {
-                        let id = new Missive('ID', idFinder);
-                        id['active'] = socketRegistry.length;
-                        id['interval'] = 2000;
-                        connectionSocket.write(JSON.stringify(id));
-                        idFinder++;
-                    }
-                });
+            socketRegistry.forEach((connectionSocket) => {  // Update client ID information
+                if (!connectionSocket.destroyed) {
+                    let id = new Missive('ID', idFinder);
+                    id['active'] = socketRegistry.length;
+                    id['interval'] = 2000;
+                    connectionSocket.write(JSON.stringify(id));
+                    idFinder++;
+                }
+            });
         });
     });
 
