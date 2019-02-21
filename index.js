@@ -68,9 +68,7 @@ client.on("ready", () => {
 
                 case registerPrefix: // Add new clients to the network, inform all clients of new ping schedule
                         idFinder = 0;
-
-                        if (err) console.error(err);
-                        console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${n} active)`);
+                        console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${socketRegistry.length} active)`);
 
                         socketRegistry.forEach((connectionSocket) => {
                             if (!connectionSocket.destroyed) { 
@@ -93,9 +91,7 @@ client.on("ready", () => {
 
         socket.on('end', () => {
                 idFinder = 0;
-
-                if (err) console.error(err);
-                console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
+                console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${socketRegistry.length} active)`);
                 let index = socketRegistry.indexOf(socket);
                 if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
 
