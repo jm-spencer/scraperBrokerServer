@@ -67,19 +67,20 @@ client.on("ready", () => {
                     break;
 
                 case registerPrefix: // Add new clients to the network, inform all clients of new ping schedule
-                    server.getConnections((err, n) => {
                         idFinder = 0;
 
                         if (err) console.error(err);
                         console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${n} active)`);
-                             if (!connectionSocket.destroyed) { 
+
+                        socketRegistry.forEach((connectionSocket) => {
+                            if (!connectionSocket.destroyed) { 
                                 let id = new Missive('ID', idFinder);
                                 id['active'] = socketRegistry.length;
                                 id['interval'] = 2000;
                                 connectionSocket.write(JSON.stringify(id));
                                 idFinder++;
                             }
-                    });
+                        });
                     break;
 
                 default:
@@ -91,13 +92,14 @@ client.on("ready", () => {
         socket.on('error', (e) => console.error('\x1b[41m%s\x1b[0m', e));
 
         socket.on('end', () => {
-            server.getConnections((err, n) => { // Log disconnections and active clients
                 idFinder = 0;
 
                 if (err) console.error(err);
                 console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
                 let index = socketRegistry.indexOf(socket);
                 if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
+
+                socketRegistry.forEach((connectionSocket) => {  // Update client ID information
                     if (!connectionSocket.destroyed) {
                         let id = new Missive('ID', idFinder);
                         id['active'] = socketRegistry.length;
@@ -105,7 +107,7 @@ client.on("ready", () => {
                         connectionSocket.write(JSON.stringify(id));
                         idFinder++;
                     }
-            });
+                });
         });
     });
 
