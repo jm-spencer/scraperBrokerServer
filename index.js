@@ -72,16 +72,13 @@ client.on("ready", () => {
 
                         if (err) console.error(err);
                         console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${n} active)`);
-
-                        socketRegistry.forEach((connectionSocket) => {
-                            if (!connectionSocket.destroyed) { 
+                             if (!connectionSocket.destroyed) { 
                                 let id = new Missive('ID', idFinder);
-                                id['active'] = n;
+                                id['active'] = socketRegistry.length;
                                 id['interval'] = 2000;
                                 connectionSocket.write(JSON.stringify(id));
                                 idFinder++;
                             }
-                        });
                     });
                     break;
 
@@ -101,16 +98,13 @@ client.on("ready", () => {
                 console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${n} active)`);
                 let index = socketRegistry.indexOf(socket);
                 if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
-
-                socketRegistry.forEach((connectionSocket) => {  // Update client ID information
                     if (!connectionSocket.destroyed) {
                         let id = new Missive('ID', idFinder);
-                        id['active'] = n;
+                        id['active'] = socketRegistry.length;
                         id['interval'] = 2000;
                         connectionSocket.write(JSON.stringify(id));
                         idFinder++;
                     }
-                });
             });
         });
     });
