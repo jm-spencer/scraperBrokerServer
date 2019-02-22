@@ -26,19 +26,21 @@ async function removeSocket(s){
     idFinder = 0;
     let index = socketRegistry.indexOf(s);
     if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
-    s.destroy();                                        //does this throw an error if the socket is already destroyed?
+    s.destroy();
 
-    console.log(`[${Date()}] Client at ${s.remoteAddress} disconnected (${socketRegistry.length} active)`);
+    if(index !== -1) {  // Don't log or refresh the schedule if the client is not registered
+        console.log(`[${Date()}] Client at ${s.remoteAddress} disconnected (${socketRegistry.length} active)`);
 
-    socketRegistry.forEach((connectionSocket) => {  // Update client ID information
-        if (!connectionSocket.destroyed) {
-            let id = new Missive('ID', idFinder);
-            id['active'] = socketRegistry.length;
-            id['interval'] = 2000;
-            connectionSocket.write(JSON.stringify(id));
-            idFinder++;
-        }
-    });
+        socketRegistry.forEach((connectionSocket) => {  // Update client ID information
+            if (!connectionSocket.destroyed) {
+                let id = new Missive('ID', idFinder);
+                id['active'] = socketRegistry.length;
+                id['interval'] = 2000;
+                connectionSocket.write(JSON.stringify(id));
+                idFinder++;
+            }
+        });
+    }
 }
 
 client.login(token);
@@ -52,7 +54,7 @@ client.on("ready", () => {
         timeout = setTimeout(() => {    // Destroy the socket if the client does not register
             let index = socketRegistry.indexOf(socket);
             if(index == -1) socket.destroy();
-        }, 10000);
+        }, 5000);
 
         socket.setEncoding('utf8');
         socket.on('data', (req) => {    // Assign event callbacks
@@ -60,7 +62,8 @@ client.on("ready", () => {
             try {   // Error handling for JSON strings
                 obj = JSON.parse(req);
             } catch(err) {
-                console.error(`[${Date()}] Bad string from ${socket.remoteAddress}`);
+                let index = socketRegistry.indexOf(socket);
+                if(index !== -1) console.error(`[${Date()}] Bad string from ${socket.remoteAddress}`); // Don't log noise from ghost clients
                 return;
             }
 
