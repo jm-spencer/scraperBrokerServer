@@ -105,6 +105,13 @@ client.on("ready", () => {
                 }
             });
         });
+
+        
+        socket.on('timeout', () => {
+            let index = socketRegistry.indexOf(socket);
+            if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry on timeout
+            socket.destroy();
+        });
     });
 
     server.on('error', (e) => console.error('\x1b[41m%s\x1b[0m', e));
