@@ -91,9 +91,9 @@ client.on("ready", () => {
 
         socket.on('end', () => {
             idFinder = 0;
-            console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${socketRegistry.length} active)`);
             let index = socketRegistry.indexOf(socket);
             if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
+            console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${socketRegistry.length} active)`);
 
             socketRegistry.forEach((connectionSocket) => {  // Update client ID information
                 if (!connectionSocket.destroyed) {
