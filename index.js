@@ -22,6 +22,25 @@ const token = process.env.SNOWDAYBOTTOKEN;
 const announcementChannels = ['478909678055587840'];
 const useEveryone = false;
 
+async function removeSocket(s){
+    idFinder = 0;
+    let index = socketRegistry.indexOf(s);
+    if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
+    s.destroy();                                        //does this throw an error if the socket is already destroyed?
+
+    console.log(`[${Date()}] Client at ${s.remoteAddress} disconnected (${socketRegistry.length} active)`);
+
+    socketRegistry.forEach((connectionSocket) => {  // Update client ID information
+        if (!connectionSocket.destroyed) {
+            let id = new Missive('ID', idFinder);
+            id['active'] = socketRegistry.length;
+            id['interval'] = 2000;
+            connectionSocket.write(JSON.stringify(id));
+            idFinder++;
+        }
+    });
+}
+
 client.login(token);
 
 console.log("\x1b[44m%s\x1b[0m","Initializing...");
@@ -90,27 +109,12 @@ client.on("ready", () => {
         socket.on('error', (e) => console.error('\x1b[41m%s\x1b[0m', e));
 
         socket.on('end', () => {
-            idFinder = 0;
-            let index = socketRegistry.indexOf(socket);
-            if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
-            console.log(`[${Date()}] Client at ${socket.remoteAddress} disconnected (${socketRegistry.length} active)`);
-
-            socketRegistry.forEach((connectionSocket) => {  // Update client ID information
-                if (!connectionSocket.destroyed) {
-                    let id = new Missive('ID', idFinder);
-                    id['active'] = socketRegistry.length;
-                    id['interval'] = 2000;
-                    connectionSocket.write(JSON.stringify(id));
-                    idFinder++;
-                }
-            });
+            removeSocket(socket);
         });
 
         
         socket.on('timeout', () => {
-            let index = socketRegistry.indexOf(socket);
-            if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry on timeout
-            socket.destroy();
+            removeSocket(socket);
         });
     });
 
