@@ -30,6 +30,11 @@ client.on("ready", () => {
 
     const server = net.createServer((socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
 
+        timeout = setTimeout(() => {    // Destroy the socket if the client does not register
+            let index = socketRegistry.indexOf(socket);
+            if(index == -1) socket.destroy();
+        }, 10000);
+
         socket.setEncoding('utf8');
         socket.on('data', (req) => {    // Assign event callbacks
             let obj = {};
