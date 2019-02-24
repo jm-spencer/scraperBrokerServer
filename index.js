@@ -23,13 +23,15 @@ const announcementChannels = ['478909678055587840'];
 const useEveryone = false;
 
 async function removeSocket(s){
-    idFinder = 0;
-    let index = socketRegistry.indexOf(s);
-    if(index !== -1) socketRegistry.splice(index, 1);   // Remove socket from registry
     s.destroy();
 
+    idFinder = 0;
+    let index = socketRegistry.indexOf(s);
+
     if(index !== -1) {  // Don't log or refresh the schedule if the client is not registered
-        console.log(`[${Date()}] Client at ${s.remoteAddress} disconnected (${socketRegistry.length} active)`);
+        socketRegistry.splice(index, 1);   // Remove socket from registry
+
+        console.log(`[${Date()}] Client at ${s.remoteAddress} disconnected, (${socketRegistry.length} active)`);
 
         socketRegistry.forEach((connectionSocket) => {  // Update client ID information
             if (!connectionSocket.destroyed) {
@@ -38,6 +40,8 @@ async function removeSocket(s){
                 id['interval'] = 2000;
                 connectionSocket.write(JSON.stringify(id));
                 idFinder++;
+            }else{
+                console.error(`[${Date()}] Registry holding destroyed socket`);
             }
         });
     }
@@ -49,12 +53,12 @@ console.log("\x1b[44m%s\x1b[0m","Initializing...");
 client.on("ready", () => {
     console.log("\x1b[44m%s\x1b[0m","Initialized");
 
-    const server = net.createServer((socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
+    var server = net.createServer((socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
 
-        timeout = setTimeout(() => {    // Destroy the socket if the client does not register
-            let index = socketRegistry.indexOf(socket);
-            if(index == -1) socket.destroy();
-        }, 5000);
+        //timeout = setTimeout(() => {    // Destroy the socket if the client does not register
+        //    let index = socketRegistry.indexOf(socket);
+        //    if(index == -1) socket.destroy();
+        //}, 5000);
 
         socket.setEncoding('utf8');
         socket.on('data', (req) => {    // Assign event callbacks
@@ -104,13 +108,15 @@ client.on("ready", () => {
                             id['interval'] = 2000;
                             connectionSocket.write(JSON.stringify(id));
                             idFinder++;
+                        }else{
+                            console.error(`[${Date()}] Registry holding destroyed socket`);
                         }
                     });
                     break;
 
                 default:
                     console.log(`[${Date()}] Queer message - Logging...`);  // Log queer messages
-                    fs.appendFile('LOG', `[${Date()}] - ${req.tag + req.content}`, (e) => console.error('\x1b[41m%s\x1b[0m', e));
+                    fs.appendFile('LOG', `[${Date()}] - ${req.tag}: ${req.content}`, (e) => console.error('\x1b[41m%s\x1b[0m', e));
             }
         });
 
