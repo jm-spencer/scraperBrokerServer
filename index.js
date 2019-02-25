@@ -1,6 +1,6 @@
-const net = require('net');
+const tls = require('tls');
 const fs = require('fs');
-const Discord = require("discord.js");
+const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
