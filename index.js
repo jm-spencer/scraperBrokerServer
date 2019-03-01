@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
-const config = require('config/server.json');
+const config = require('./config/server.json');
 
 function Missive(tag, content) {    // Construct the Missive class
     this.tag = tag;

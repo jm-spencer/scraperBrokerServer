@@ -3,7 +3,7 @@ const rp = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs');
 
-const config = require('config/client.json');
+const config = require('./config/client.json');
 
 var lastNotification = '';
 var target = 2;
