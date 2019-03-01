@@ -3,7 +3,7 @@ const rp = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs');
 
-const serverAddress = process.env.SERVERADDRESS;
+const config = require('config/client.json');
 
 var lastNotification = '';
 var target = 2;
@@ -14,9 +14,6 @@ function Missive(tag, content) { // Construct the Missive class
     this.tag = tag;
     this.content = content;
 }
-
-const disconnectPrefix = 'END'; // Define tags
-const idPrefix = 'ID';
 
 
 function connect() { // Connect  
@@ -63,7 +60,7 @@ function connect() { // Connect
 
     const client = tls.connect({
         port: 8081,
-        host: serverAddress,
+        host: config.serverAddress,
         key: fs.readFileSync('certs/private-key.pem'),  // Private key
         cert: fs.readFileSync('certs/public-cert.pem'), // Public certificate
         rejectUnauthorized: false   // Getting error from self-signed certificate, as it is not trusted. This fixes that.
@@ -84,12 +81,12 @@ function connect() { // Connect
         console.log(`[${Date()}] ${obj.tag}: ${obj.content}`);
 
         switch (obj.tag) {
-            case disconnectPrefix: // Abort client if there is an emergency disconnect signal
+            case config.prefix.disconnect: // Abort client if there is an emergency disconnect signal
                 console.log(`[${Date()}] EMERGENCY DISCONNECT`);
                 client.end()
                 break;
 
-            case idPrefix: // Inform client of number of active clients for ping scheduling
+            case config.prefix.id: // Inform client of number of active clients for ping scheduling
                 pDef = obj.content * obj.interval;
                 interDef = obj.active * obj.interval;
 

@@ -1,3 +1,7 @@
+# User Defined
+config/
+certs/
+
 # Logs
 logs
 *.log
