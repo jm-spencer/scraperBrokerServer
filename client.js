@@ -1,4 +1,4 @@
-const net = require('net');
+const tls = require('tls');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs');
@@ -29,10 +29,10 @@ function connect() { // Connect
                 return rp('https://www.calverthall.com/page').catch((e) => console.error('\x1b[41m%s\x1b[0m', e));
 
             case 1:
-                return fs.readFileSync('./Calvert Hall - Normal.html');
+                return fs.readFileSync('html/Calvert Hall - Normal.html');
 
             case 2:
-                return fs.readFileSync('./Calvert Hall - Snow Day.html');
+                return fs.readFileSync('html/Calvert Hall - Snow Day.html');
 
             default:
                 console.error('\x1b[41m%s\x1b[0m', `[${Date()}] INVALID TARGET: ${target}`);
@@ -61,12 +61,13 @@ function connect() { // Connect
         clearTimeout(timeout);
     }
 
-    const client = new net.Socket();
-
-    client.connect(
-        8081,
-        serverAddress, 
-        
+    const client = tls.connect({
+        port: 8081,
+        host: serverAddress,
+        key: fs.readFileSync('certs/private-key.pem'),  // Private key
+        cert: fs.readFileSync('certs/public-cert.pem'), // Public certificate
+        rejectUnauthorized: false   // Getting error from self-signed certificate, as it is not trusted. This fixes that.
+    },
         () => {
         console.log(`[${Date()}] CONNECTED TO SERVER`);
         client.setEncoding('utf8');

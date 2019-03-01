@@ -47,13 +47,16 @@ async function removeSocket(s){
     }
 }
 
-client.login(token);
+//client.login(token);
 
 console.log("\x1b[44m%s\x1b[0m","Initializing...");
-client.on("ready", () => {
+//client.on("ready", () => {
     console.log("\x1b[44m%s\x1b[0m","Initialized");
 
-    var server = net.createServer((socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
+    var server = tls.createServer({
+       key: fs.readFileSync('certs/private-key.pem'),   // Private key
+       cert: fs.readFileSync('certs/public-cert.pem')   // Public certificate
+    }, (socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
 
         //timeout = setTimeout(() => {    // Destroy the socket if the client does not register
         //    let index = socketRegistry.indexOf(socket);
@@ -76,9 +79,9 @@ client.on("ready", () => {
                     if (obj.content == fs.readFileSync('lastNotification.log')) break;
                     console.log(`[${Date()}] Snow day! ${obj.content}`);
 
-                    for(let channelId of announcementChannels){
+                  /*  for(let channelId of announcementChannels){
                         client.channels.get(channelId).send((useEveryone ? "@everyone " : "") + obj.content).catch(console.error);
-                    }
+                    }*/
 
                     fs.writeFileSync('lastNotification.log', obj.content);
 
@@ -137,4 +140,4 @@ client.on("ready", () => {
     server.listen(8081, () => { // Server listens on port 8081
         console.log(`[${Date()}] Server bound`);
     });
-});
+//});

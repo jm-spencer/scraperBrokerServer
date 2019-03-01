@@ -62,3 +62,6 @@ typings/
 
 # HTML files
 .html
+
+# Keys
+*.pem
