@@ -1,26 +1,19 @@
-const net = require('net');
+const tls = require('tls');
 const fs = require('fs');
-const Discord = require("discord.js");
+const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
+const config = require('./config/server.json');
 
 function Missive(tag, content) {    // Construct the Missive class
     this.tag = tag;
     this.content = content;
 }
 
-const messagePrefix = `MSG`;    // Define incoming Missive tags
-const disconnectPrefix = `END`;
-const shutdownPrefix = `UWU`;
-const registerPrefix = `REG`;
 
 var socketRegistry = []; // Define misc. variables
 var idFinder = 0;
-
-const token = process.env.SNOWDAYBOTTOKEN;
-const announcementChannels = ['478909678055587840'];
-const useEveryone = false;
 
 async function removeSocket(s){
     s.destroy();
@@ -47,13 +40,16 @@ async function removeSocket(s){
     }
 }
 
-client.login(token);
+//client.login(config.token);
 
 console.log("\x1b[44m%s\x1b[0m","Initializing...");
-client.on("ready", () => {
+//client.on("ready", () => {
     console.log("\x1b[44m%s\x1b[0m","Initialized");
 
-    var server = net.createServer((socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
+    var server = tls.createServer({
+       key: fs.readFileSync('certs/private-key.pem'),   // Private key
+       cert: fs.readFileSync('certs/public-cert.pem')   // Public certificate
+    }, (socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
 
         //timeout = setTimeout(() => {    // Destroy the socket if the client does not register
         //    let index = socketRegistry.indexOf(socket);
@@ -72,31 +68,31 @@ client.on("ready", () => {
             }
 
             switch (obj.tag) {
-                case messagePrefix: // Log snow message and post it to Discord
+                case config.prefix.message: // Log snow message and post it to Discord
                     if (obj.content == fs.readFileSync('lastNotification.log')) break;
                     console.log(`[${Date()}] Snow day! ${obj.content}`);
 
-                    for(let channelId of announcementChannels){
-                        client.channels.get(channelId).send((useEveryone ? "@everyone " : "") + obj.content).catch(console.error);
-                    }
+                  /*  for(let channelId of config.announcementChannels){
+                        client.channels.get(channelId).send((config.useEveryone ? "@everyone " : "") + obj.content).catch(console.error);
+                    }*/
 
                     fs.writeFileSync('lastNotification.log', obj.content);
 
                     break;
 
-                case disconnectPrefix: // Stop communication with the bots
+                case config.prefix.disconnect: // Stop communication with the bots
                     let end = new Missive('END', `[${Date()}] END SIGNAL`)
                     console.log(`[${Date()}] Emergency communications shutoff - Disconnecting from bots...`);
 
                     socketRegistry.forEach((connectionSocket) => {if (!connectionSocket.destroyed) connectionSocket.write(JSON.stringify(end))});
                     break;
 
-                case shutdownPrefix: // Shut down the server
-                    console.log(`[${Date()}]  Code ${shutdownPrefix}! Shutting down!`);
+                case config.prefix.shutdown: // Shut down the server
+                    console.log(`[${Date()}]  Code ${config.prefix.shutdown}! Shutting down!`);
                     process.exit();
                     break;
 
-                case registerPrefix: // Add new clients to the network, inform all clients of new ping schedule
+                case config.prefix.register: // Add new clients to the network, inform all clients of new ping schedule
                     socketRegistry.push(socket);    // Add new socket to the registry
                     idFinder = 0;
                     console.log(`[${Date()}] Client at ${socket.remoteAddress} connected (${socketRegistry.length} active)`);
@@ -137,4 +133,4 @@ client.on("ready", () => {
     server.listen(8081, () => { // Server listens on port 8081
         console.log(`[${Date()}] Server bound`);
     });
-});
+//});

@@ -1,3 +1,7 @@
+# User Defined
+config/
+certs/
+
 # Logs
 logs
 *.log
@@ -62,3 +66,6 @@ typings/
 
 # HTML files
 .html
+
+# Keys
+*.pem
