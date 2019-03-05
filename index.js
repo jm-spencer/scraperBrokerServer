@@ -24,7 +24,7 @@ async function removeSocket(s){
     if(index !== -1) {  // Don't log or refresh the schedule if the client is not registered
         socketRegistry.splice(index, 1);   // Remove socket from registry
 
-        console.log(`[${Date()}]\x1b[42m Client at ${s.remoteAddress} disconnected, (${socketRegistry.length} active)\x1b[0m`);
+        console.log(`[${Date()}] \x1b[42mClient at ${s.remoteAddress} disconnected, (${socketRegistry.length} active)\x1b[0m`);
 
         socketRegistry.forEach((connectionSocket) => {  // Update client ID information
             if (!connectionSocket.destroyed) {
@@ -34,7 +34,7 @@ async function removeSocket(s){
                 connectionSocket.write(JSON.stringify(id));
                 idFinder++;
             }else{
-                console.error(`[${Date()}]\x1b[41m Registry holding destroyed socket\x1b[0m`);
+                console.error(`[${Date()}] \x1b[41mRegistry holding destroyed socket\x1b[0m`);
             }
         });
     }
@@ -63,18 +63,18 @@ console.log(`\x1b[44mInitializing...\x1b[0m`);
                 obj = JSON.parse(req);
             } catch(err) {
                 let index = socketRegistry.indexOf(socket);
-                if(index !== -1) console.error(`[${Date()}]\x1b[41m Bad string from ${socket.remoteAddress}\x1b[0m`); // Don't log noise from ghost clients
+                if(index !== -1) console.error(`[${Date()}] \x1b[41mBad string from ${socket.remoteAddress}\x1b[0m`); // Don't log noise from ghost clients
                 return;
             }
 
             switch (obj.tag) {
                 case config.prefix.message: // Log snow message and post it to Discord
                     if (obj.content == fs.readFileSync('lastNotification.log')) break;
-                    console.log(`[${Date()}]\x1b[47m\x1b[30m Snow day! ${obj.content}\x1b[0m`);
+                    console.log(`[${Date()}] \x1b[47m\x1b[30mSnow day! ${obj.content}\x1b[0m`);
 
                   /*  for(let channelId of config.announcementChannels){
                         client.channels.get(channelId).send((config.useEveryone ? "@everyone " : "") + obj.content).catch(err => 
-                            console.error(`[${Date()}]\x1b[41m Error reporting snow day to ${channelId}: ${err}\x1b[0m`);
+                            console.error(`[${Date()}] \x1b[41mError reporting snow day to ${channelId}: ${err}\x1b[0m`);
 ;                        );
                     }*/
 
@@ -84,20 +84,20 @@ console.log(`\x1b[44mInitializing...\x1b[0m`);
 
                 case config.prefix.disconnect: // Stop communication with the bots
                     let end = new Missive('END', `[${Date()}] END SIGNAL`)
-                    console.log(`[${Date()}]\x1b[45m Emergency communications shutoff - Disconnecting from bots...\x1b[0m`);
+                    console.log(`[${Date()}] \x1b[45mEmergency communications shutoff - Disconnecting from bots...\x1b[0m`);
 
                     socketRegistry.forEach((connectionSocket) => {if (!connectionSocket.destroyed) connectionSocket.write(JSON.stringify(end))});
                     break;
 
                 case config.prefix.shutdown: // Shut down the server
-                    console.log(`[${Date()}]\x1b[45m Code ${config.prefix.shutdown}! Shutting down!\x1b[0m`);
+                    console.log(`[${Date()}] \x1b[45mCode ${config.prefix.shutdown}! Shutting down!\x1b[0m`);
                     process.exit();
                     break;
 
                 case config.prefix.register: // Add new clients to the network, inform all clients of new ping schedule
                     socketRegistry.push(socket);    // Add new socket to the registry
                     idFinder = 0;
-                    console.log(`[${Date()}]\x1b[42m Client at ${socket.remoteAddress} connected (${socketRegistry.length} active)\x1b[0m`);
+                    console.log(`[${Date()}] \x1b[42mClient at ${socket.remoteAddress} connected (${socketRegistry.length} active)\x1b[0m`);
 
                     socketRegistry.forEach((connectionSocket) => {
                         if (!connectionSocket.destroyed) { 
@@ -107,18 +107,18 @@ console.log(`\x1b[44mInitializing...\x1b[0m`);
                             connectionSocket.write(JSON.stringify(id));
                             idFinder++;
                         }else{
-                            console.error(`[${Date()}]\x1b[41m Registry holding destroyed socket\x1b[0m`);
+                            console.error(`[${Date()}] \x1b[41mRegistry holding destroyed socket\x1b[0m`);
                         }
                     });
                     break;
 
                 default:
-                    console.log(`[${Date()}]\x1b[43m Queer message - Logging...\x1b[0m`);  // Log queer messages
-                    fs.appendFile('LOG', `[${Date()}], ${socket.remoteAddress} - ${req.tag}: ${req.content}`, (err) => console.error(`[${Date()}]\x1b[41m Log ${err}\x1b[0m`));
+                    console.log(`[${Date()}] \x1b[43mQueer message - Logging...\x1b[0m`);  // Log queer messages
+                    fs.appendFile('LOG', `[${Date()}], ${socket.remoteAddress} - ${req.tag}: ${req.content}`, (err) => console.error(`[${Date()}] \x1b[41mLog ${err}\x1b[0m`));
             }
         });
 
-        socket.on('error', (err) => console.error(`[${Date()}]\x1b[41m Socket ${err}\x1b[0m`));
+        socket.on('error', (err) => console.error(`[${Date()}] \x1b[41mSocket ${err}\x1b[0m`));
 
         socket.on('end', () => {
             removeSocket(socket);
@@ -130,9 +130,9 @@ console.log(`\x1b[44mInitializing...\x1b[0m`);
         });
     });
 
-    server.on('error', (err) => console.error(`[${Date()}]\x1b[41m Server ${err}\x1b[0m`));
+    server.on('error', (err) => console.error(`[${Date()}] \x1b[41mServer ${err}\x1b[0m`));
 
     server.listen(8081, () => { // Server listens on port 8081
-        console.log(`[${Date()}]\x1b[44m Server bound\x1b[0m`);
+        console.log(`[${Date()}] \x1b[44mServer bound\x1b[0m`);
     });
 //});

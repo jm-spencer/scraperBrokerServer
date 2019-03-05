@@ -23,7 +23,7 @@ function connect() { // Connect
     async function scrape() { // Scraping - Adapted from original Snow Day Bot
         switch (target) {
             case 0:
-                return rp('https://www.calverthall.com/page').catch((err) => console.error(`[${Date()}]\x1b[41m Request ${err}\x1b[0m`));
+                return rp('https://www.calverthall.com/page').catch((err) => console.error(`[${Date()}] \x1b[41mRequest ${err}\x1b[0m`));
 
             case 1:
                 return fs.readFileSync('html/Calvert Hall - Normal.html');
@@ -32,7 +32,7 @@ function connect() { // Connect
                 return fs.readFileSync('html/Calvert Hall - Snow Day.html');
 
             default:
-                console.error(`[${Date()}]\x1b[43m INVALID TARGET: ${target}\x1b[0m`);
+                console.error(`[${Date()}] \x1b[43mINVALID TARGET: ${target}\x1b[0m`);
         }
     }
 
@@ -42,12 +42,12 @@ function connect() { // Connect
         if (msg.content == lastNotification) return;
         lastNotification = msg.content;
         if (!msg.content) return;
-        console.log(`[${Date()}]\x1b[47m\x1b[30m Oubound data ${msg.content}\x1b[0m`);
+        console.log(`[${Date()}] \x1b[47m\x1b[30mOutbound data: ${msg.content}\x1b[0m`);
         client.write(JSON.stringify(msg)); // Update latest message on server
     }
 
     async function pSched() { // Schedule the ping interval
-        console.log(`[${Date()}]\x1b[42m Scheduling ping with interval {${interDef}} and offset {${pDef}}\x1b[0m`);
+        console.log(`[${Date()}] \x1b[42mScheduling ping with interval {${interDef}} and offset {${pDef}}\x1b[0m`);
         timeout = setTimeout(() => {
             parse();
             interval = setInterval(parse, interDef);
@@ -67,7 +67,7 @@ function connect() { // Connect
         rejectUnauthorized: false   // Getting error from self-signed certificate, as it is not trusted. This fixes that.
     },
         () => {
-        console.log(`[${Date()}]\x1b[44m CONNECTED TO SERVER\x1b[0m`);
+        console.log(`[${Date()}] \x1b[44mCONNECTED TO SERVER\x1b[0m`);
         client.setEncoding('utf8');
 
         timeout = setTimeout(() => { // Delay registration to avoid a broken interval
@@ -81,7 +81,7 @@ function connect() { // Connect
 
         switch (obj.tag) {
             case config.prefix.disconnect: // Abort client if there is an emergency disconnect signal
-                console.log(`[${Date()}]\x1b[45m EMERGENCY DISCONNECT\x1b[0m`);
+                console.log(`[${Date()}] \x1b[45mEMERGENCY DISCONNECT\x1b[0m`);
                 client.end()
                 break;
 
@@ -93,19 +93,19 @@ function connect() { // Connect
                 pSched();
                 break;
             default:
-                console.log(`[${Date()}]\x1b[43m Queer message - ${obj.tag}: ${obj.content}\x1b[0m`);
+                console.log(`[${Date()}] \x1b[43mQueer message - ${obj.tag}: ${obj.content}\x1b[0m`);
                 break;
         }
     });
 
     client.on('end', () => { // Reconnect on `end` event
-        console.log(`[${Date()}]\x1b[41m DISCONNECTED FROM SERVER\x1b[0m`);
+        console.log(`[${Date()}] \x1b[41mDISCONNECTED FROM SERVER\x1b[0m`);
         antiSched();
         connect();
     });
 
     client.on(`error`, (err) => { // Reconnect on an error
-        console.error(`[${Date()}]\x1b[41m Socket ${err}\x1b[0m`);
+        console.error(`[${Date()}] \x1b[41mSocket ${err}\x1b[0m`);
 
         antiSched();
         connect();
