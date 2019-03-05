@@ -23,7 +23,7 @@ function connect() { // Connect
     async function scrape() { // Scraping - Adapted from original Snow Day Bot
         switch (target) {
             case 0:
-                return rp('https://www.calverthall.com/page').catch((e) => console.error('\x1b[41m%s\x1b[0m', e));
+                return rp('https://www.calverthall.com/page').catch((err) => console.error(`[${Date()}]\x1b[41m Request ${err}\x1b[0m`));
 
             case 1:
                 return fs.readFileSync('html/Calvert Hall - Normal.html');
@@ -32,7 +32,7 @@ function connect() { // Connect
                 return fs.readFileSync('html/Calvert Hall - Snow Day.html');
 
             default:
-                console.error('\x1b[41m%s\x1b[0m', `[${Date()}] INVALID TARGET: ${target}`);
+                console.error(`[${Date()}]\x1b[43m INVALID TARGET: ${target}\x1b[0m`);
         }
     }
 
@@ -42,11 +42,12 @@ function connect() { // Connect
         if (msg.content == lastNotification) return;
         lastNotification = msg.content;
         if (!msg.content) return;
+        console.log(`[${Date()}]\x1b[47m\x1b[30m Oubound data ${msg.content}\x1b[0m`);
         client.write(JSON.stringify(msg)); // Update latest message on server
     }
 
     async function pSched() { // Schedule the ping interval
-        console.log(`[${Date()}] Scheduling ping with interval {${interDef}} and offset {${pDef}}`);
+        console.log(`[${Date()}]\x1b[42m Scheduling ping with interval {${interDef}} and offset {${pDef}}\x1b[0m`);
         timeout = setTimeout(() => {
             parse();
             interval = setInterval(parse, interDef);
@@ -66,7 +67,7 @@ function connect() { // Connect
         rejectUnauthorized: false   // Getting error from self-signed certificate, as it is not trusted. This fixes that.
     },
         () => {
-        console.log(`[${Date()}] CONNECTED TO SERVER`);
+        console.log(`[${Date()}]\x1b[44m CONNECTED TO SERVER\x1b[0m`);
         client.setEncoding('utf8');
 
         timeout = setTimeout(() => { // Delay registration to avoid a broken interval
@@ -78,11 +79,9 @@ function connect() { // Connect
     client.on(`data`, (res) => { // Handle data
         let obj = JSON.parse(res);
 
-        console.log(`[${Date()}] ${obj.tag}: ${obj.content}`);
-
         switch (obj.tag) {
             case config.prefix.disconnect: // Abort client if there is an emergency disconnect signal
-                console.log(`[${Date()}] EMERGENCY DISCONNECT`);
+                console.log(`[${Date()}]\x1b[45m EMERGENCY DISCONNECT\x1b[0m`);
                 client.end()
                 break;
 
@@ -93,17 +92,20 @@ function connect() { // Connect
                 antiSched();
                 pSched();
                 break;
+            default:
+                console.log(`[${Date()}]\x1b[43m Queer message - ${obj.tag}: ${obj.content}\x1b[0m`);
+                break;
         }
     });
 
     client.on('end', () => { // Reconnect on `end` event
-        console.log(`[${Date()}] DISCONNECTED FROM SERVER`);
+        console.log(`[${Date()}]\x1b[41m DISCONNECTED FROM SERVER\x1b[0m`);
         antiSched();
         connect();
     });
 
     client.on(`error`, (err) => { // Reconnect on an error
-        console.error('\x1b[41m%s\x1b[0m', `[${Date()}] Socket ${err}`);
+        console.error(`[${Date()}]\x1b[41m Socket ${err}\x1b[0m`);
 
         antiSched();
         connect();

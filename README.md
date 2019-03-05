@@ -14,3 +14,37 @@ The botnet uses TLS encryption to secure traffic, and client verification as wel
 ## Licensing
 *Do whatever you want with the code, it sucks anyway.*
 *Just make sure to shout us out or whatever.*
+
+## Logging
+The terminal uses color codes to see the state of operation at a glance
+Black text, white  background: inbound/outbound data
+White text, red    background: error
+"     "   , green  background: scheduling
+"     "   , yellow background: queer message
+"     "   , blue   background: initialization
+"     "   , purple background: controlled error (eg. force shutdown)
+
+## Hidden directories
+There are two directories essential to operation, `/config/` and `/certs/`
+
+config contains `server.json` and `client.json`, both of which are settings for their respective programs
+certs contains a pair of keys named `public-cert.pem` and `private-key.pem`
+
+
+template for server.json:
+```json
+{
+    "prefix": {"message", "disconnect", "shutdown", "register"},
+    "token",
+    "announcementChannels": [],
+    "useEveryone": false
+}
+```
+
+template for client.json
+```json
+{
+    "serverAddress"
+    "prefix": {"disconnect", "id"}
+}
+```
