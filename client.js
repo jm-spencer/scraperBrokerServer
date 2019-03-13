@@ -15,42 +15,43 @@ function Missive(tag, content) { // Construct the Missive class
     this.content = content;
 }
 
+function execute() { //this is the function, which will be set by the server and run on some set interval
+    let $;
+    switch (target) {
+        case 0:
+            rp('https://www.calverthall.com/page').then(res => {
+                $ = cheerio.load(res);
+            }).catch((err) => console.error(`[${Date()}] \x1b[41mRequest ${err}\x1b[0m`));
+            break;
+        case 1:
+            $ = cheerio.load(fs.readFileSync('html/Calvert Hall - Normal.html'));
+            break;
+        case 2:
+            $ = cheerio.load(fs.readFileSync('html/Calvert Hall - Snow Day.html'));
+            break;
+        default:
+            console.error(`[${Date()}] \x1b[43mINVALID TARGET: ${target}\x1b[0m`);
+            return;
+    }
+
+    let msg = new Missive('MSG', $('.message').first().text().trim());
+    if (msg.content == lastNotification) return;
+    lastNotification = msg.content;
+    if (!msg.content) return;
+    console.log(`[${Date()}] \x1b[47m\x1b[30mOutbound data: ${msg.content}\x1b[0m`);
+    client.write(JSON.stringify(msg)); // Update latest message on server
+}
+
 
 function connect() { // Connect  
     
     lastNotification = '';
 
-    async function scrape() { // Scraping - Adapted from original Snow Day Bot
-        switch (target) {
-            case 0:
-                return rp('https://www.calverthall.com/page').catch((err) => console.error(`[${Date()}] \x1b[41mRequest ${err}\x1b[0m`));
-
-            case 1:
-                return fs.readFileSync('html/Calvert Hall - Normal.html');
-
-            case 2:
-                return fs.readFileSync('html/Calvert Hall - Snow Day.html');
-
-            default:
-                console.error(`[${Date()}] \x1b[43mINVALID TARGET: ${target}\x1b[0m`);
-        }
-    }
-
-    async function parse() { // Parse message - Adapted from original Snow Day Bot
-        let $ = cheerio.load(await scrape());
-        let msg = new Missive('MSG', $('.message').first().text().trim());
-        if (msg.content == lastNotification) return;
-        lastNotification = msg.content;
-        if (!msg.content) return;
-        console.log(`[${Date()}] \x1b[47m\x1b[30mOutbound data: ${msg.content}\x1b[0m`);
-        client.write(JSON.stringify(msg)); // Update latest message on server
-    }
-
     async function pSched() { // Schedule the ping interval
         console.log(`[${Date()}] \x1b[42mScheduling ping with interval {${interDef}} and offset {${pDef}}\x1b[0m`);
         timeout = setTimeout(() => {
-            parse();
-            interval = setInterval(parse, interDef);
+            execute();
+            interval = setInterval(execute, interDef);
         }, pDef);
     }
 
