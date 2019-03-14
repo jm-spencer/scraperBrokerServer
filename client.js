@@ -9,49 +9,24 @@ var lastNotification = '';
 var target = 2;
 var pDef, interDef; 
 var interval, timeout = null;
+var mod;
 
 function Missive(tag, content) { // Construct the Missive class
     this.tag = tag;
     this.content = content;
 }
 
-function execute() { //this is the function, which will be set by the server and run on some set interval
-    let $;
-    switch (target) {
-        case 0:
-            rp('https://www.calverthall.com/page').then(res => {
-                $ = cheerio.load(res);
-            }).catch((err) => console.error(`[${Date()}] \x1b[41mRequest ${err}\x1b[0m`));
-            break;
-        case 1:
-            $ = cheerio.load(fs.readFileSync('html/Calvert Hall - Normal.html'));
-            break;
-        case 2:
-            $ = cheerio.load(fs.readFileSync('html/Calvert Hall - Snow Day.html'));
-            break;
-        default:
-            console.error(`[${Date()}] \x1b[43mINVALID TARGET: ${target}\x1b[0m`);
-            return;
-    }
-
-    let msg = new Missive('MSG', $('.message').first().text().trim());
-    if (msg.content == lastNotification) return;
-    lastNotification = msg.content;
-    if (!msg.content) return;
-    console.log(`[${Date()}] \x1b[47m\x1b[30mOutbound data: ${msg.content}\x1b[0m`);
-    client.write(JSON.stringify(msg)); // Update latest message on server
-}
-
-
 function connect() { // Connect  
     
     lastNotification = '';
 
+    function task() {eval(mod);}    // Function that evaluates the client module from the server
+
     async function pSched() { // Schedule the ping interval
         console.log(`[${Date()}] \x1b[42mScheduling ping with interval {${interDef}} and offset {${pDef}}\x1b[0m`);
         timeout = setTimeout(() => {
-            execute();
-            interval = setInterval(execute, interDef);
+            task();
+            interval = setInterval(task, interDef);
         }, pDef);
     }
 
@@ -89,10 +64,11 @@ function connect() { // Connect
             case config.prefix.id: // Inform client of number of active clients for ping scheduling
                 pDef = obj.content * obj.interval;
                 interDef = obj.active * obj.interval;
-
+                mod = obj.mod;  // Assign the module string to a variable
                 antiSched();
                 pSched();
                 break;
+
             default:
                 console.log(`[${Date()}] \x1b[43mQueer message - ${obj.tag}: ${obj.content}\x1b[0m`);
                 break;

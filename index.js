@@ -51,6 +51,7 @@ console.log(`\x1b[44mInitializing...\x1b[0m`);
        cert: fs.readFileSync('certs/public-cert.pem')   // Public certificate
     }, (socket) => {   // Callback here is called on event 'connection,' and returns a socket object to the connection
 
+
         //timeout = setTimeout(() => {    // Destroy the socket if the client does not register
         //    let index = socketRegistry.indexOf(socket);
         //    if(index == -1) socket.destroy();
@@ -104,6 +105,7 @@ console.log(`\x1b[44mInitializing...\x1b[0m`);
                             let id = new Missive('ID', idFinder);
                             id['active'] = socketRegistry.length;
                             id['interval'] = 2000;
+                            id['mod'] = fs.readFileSync('./clientModule.js').toString();
                             connectionSocket.write(JSON.stringify(id));
                             idFinder++;
                         }else{
