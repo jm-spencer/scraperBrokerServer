@@ -91,7 +91,7 @@ function connect() { // Connect
         console.error(`[${Date()}] \x1b[41mSocket ${err}\x1b[0m`);
 
         antiSched();
-        connect();
+        setTimeout(connect, 3000);  // Limit reconnect rate
     });
 }
 

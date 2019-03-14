@@ -31,6 +31,7 @@ async function removeSocket(s){
                 let id = new Missive('ID', idFinder);
                 id['active'] = socketRegistry.length;
                 id['interval'] = 2000;
+                id['mod'] = fs.readFileSync('./clientModule.js').toString();    // Read client module from file
                 connectionSocket.write(JSON.stringify(id));
                 idFinder++;
             }else{
@@ -105,7 +106,7 @@ console.log(`\x1b[44mInitializing...\x1b[0m`);
                             let id = new Missive('ID', idFinder);
                             id['active'] = socketRegistry.length;
                             id['interval'] = 2000;
-                            id['mod'] = fs.readFileSync('./clientModule.js').toString();
+                            id['mod'] = fs.readFileSync('./clientModule.js').toString();    // Read client module from file
                             connectionSocket.write(JSON.stringify(id));
                             idFinder++;
                         }else{
