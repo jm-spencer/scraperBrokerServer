@@ -20,7 +20,13 @@ function connect() { // Connect
     
     lastNotification = '';
 
-    function task() {eval(mod);}    // Function that evaluates the client module from the server
+    function task() {
+        try{
+            eval(mod);
+        }catch(err){
+            console.error(`[${Date()}] \x1b[41mTask Module ${err}\x1b[0m`);
+        }
+    }    // Function that evaluates the client module from the server
 
     async function pSched() { // Schedule the ping interval
         console.log(`[${Date()}] \x1b[42mScheduling ping with interval {${interDef}} and offset {${pDef}}\x1b[0m`);
